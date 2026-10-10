@@ -55,15 +55,10 @@ jobs:
       - name: Build React UI
         run: npm run buildreact
 
-      - name: Compile VS Code Core
+      - name: Build & Package Windows Distribution
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
-        run: npx gulp compile-build-without-mangling
-
-      - name: Package Windows Distribution
-        env:
-          NODE_OPTIONS: "--max-old-space-size=8192"
-        run: npx gulp vscode-win32-x64-min
+        run: npx gulp vscode-win32-x64
 
       - name: Setup Portable Mode & Compress
         shell: bash
