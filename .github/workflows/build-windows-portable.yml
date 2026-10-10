@@ -20,11 +20,18 @@ permissions:
 jobs:
   build-windows:
     name: Build Windows x64 Portable
-    runs-on: windows-latest
+    runs-on: windows-2022
+
+    env:
+      npm_config_msvs_version: "2022"
+      GYP_MSVS_VERSION: "2022"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup MSVC Developer Environment
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
