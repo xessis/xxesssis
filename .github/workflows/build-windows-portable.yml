@@ -1,0 +1,89 @@
+name: Build Windows Portable
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Publish as GitHub Release'
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows x64 Portable
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.2
+          cache: npm
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust Engine Core
+        run: |
+          cargo build --release --manifest-path src-rust/Cargo.toml
+          cargo test --all --manifest-path src-rust/Cargo.toml
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build React UI
+        run: npm run buildreact
+
+      - name: Compile VS Code Core
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+        run: npm run compile-build-without-mangling
+
+      - name: Package Windows Distribution
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+        run: npx gulp vscode-win32-x64-min
+
+      - name: Setup Portable Mode & Compress
+        shell: bash
+        run: |
+          # Orbit outputs to ../Orbit-win32-x64
+          WIN_DIR="../Orbit-win32-x64"
+          if [ ! -d "$WIN_DIR" ]; then
+            WIN_DIR="../VSCode-win32-x64"
+          fi
+          
+          # Create data folder for 100% self-contained portable mode
+          mkdir -p "$WIN_DIR/data"
+          
+          # Bundle the portable zip
+          7z a -tzip Orbit-win32-x64-portable.zip "$WIN_DIR/*"
+
+      - name: Upload Portable Zip Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Orbit-win32-x64-portable
+          path: Orbit-win32-x64-portable.zip
+          retention-days: 14
+
+      - name: Create GitHub Release (Optional)
+        if: ${{ inputs.create_release || startsWith(github.ref, 'refs/tags/v') }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Orbit-win32-x64-portable.zip
+          name: Orbit ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
