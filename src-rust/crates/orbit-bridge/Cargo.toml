@@ -1,0 +1,24 @@
+[package]
+name = "orbit-bridge"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+orbit-common = { workspace = true }
+orbit-diff = { workspace = true }
+orbit-tools = { workspace = true }
+orbit-llm = { workspace = true }
+orbit-runtime = { workspace = true }
+orbit-mcp = { workspace = true }
+orbit-cdp = { workspace = true }
+orbit-models = { workspace = true }
+orbit-prompts = { workspace = true }
+orbit-providers = { workspace = true }
+orbit-autocomplete = { workspace = true }
+orbit-runner = { workspace = true }
+orbit-git = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }

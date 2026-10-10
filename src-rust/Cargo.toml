@@ -1,0 +1,55 @@
+[workspace]
+members = [
+    "crates/orbit-common",
+    "crates/orbit-diff",
+    "crates/orbit-tools",
+    "crates/orbit-llm",
+    "crates/orbit-runtime",
+    "crates/orbit-mcp",
+    "crates/orbit-cdp",
+    "crates/orbit-bridge",
+    "crates/orbit-models",
+    "crates/orbit-prompts",
+    "crates/orbit-providers",
+    "crates/orbit-autocomplete",
+    "crates/orbit-runner",
+    "crates/orbit-git",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+similar = { version = "2.6", features = ["bytes", "inline"] }
+blake3 = "1.5"
+uuid = { version = "1.8", features = ["v4", "serde"] }
+regex = "1.10"
+memmap2 = "0.9"
+ignore = "0.4"
+grep-searcher = "0.1"
+grep-regex = "0.1"
+grep-matcher = "0.1"
+tokio = { version = "1.43", features = ["full"] }
+tokio-util = "0.7"
+url = "2.5"
+sha2 = "0.10"
+futures-util = "0.3"
+orbit-common = { path = "crates/orbit-common" }
+orbit-diff = { path = "crates/orbit-diff" }
+orbit-tools = { path = "crates/orbit-tools" }
+orbit-llm = { path = "crates/orbit-llm" }
+orbit-runtime = { path = "crates/orbit-runtime" }
+orbit-mcp = { path = "crates/orbit-mcp" }
+orbit-cdp = { path = "crates/orbit-cdp" }
+orbit-models = { path = "crates/orbit-models" }
+orbit-prompts = { path = "crates/orbit-prompts" }
+orbit-providers = { path = "crates/orbit-providers" }
+orbit-autocomplete = { path = "crates/orbit-autocomplete" }
+orbit-runner = { path = "crates/orbit-runner" }
+orbit-git = { path = "crates/orbit-git" }

@@ -126,5 +126,8 @@ import '../common/xAiGrokAuthService.js'
 import '../common/githubAuthService.js'
 import '../common/orbitProviderAuthService.js'
 
+// native Rust bridge service
+import '../common/nativeBridgeService.js'
+
 // model service
 import '../common/orbitModelService.js'

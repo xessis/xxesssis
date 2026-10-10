@@ -1,0 +1,18 @@
+[package]
+name = "orbit-runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+orbit-common = { workspace = true }
+orbit-diff = { workspace = true }
+orbit-tools = { workspace = true }
+orbit-llm = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+uuid = { workspace = true }
+blake3 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }

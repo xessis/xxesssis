@@ -1,0 +1,15 @@
+[package]
+name = "orbit-llm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+orbit-common = { path = "../orbit-common" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+orbit-diff = { path = "../orbit-diff" }
+orbit-tools = { path = "../orbit-tools" }
