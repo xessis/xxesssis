@@ -58,7 +58,7 @@ jobs:
       - name: Compile VS Code Core
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
-        run: npm run compile-build-without-mangling
+        run: npx gulp compile-build-without-mangling
 
       - name: Package Windows Distribution
         env:
