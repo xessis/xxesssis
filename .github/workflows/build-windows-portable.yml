@@ -33,7 +33,9 @@ jobs:
           cache: npm
 
       - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
 
       - name: Build Rust Engine Core
         run: |
@@ -79,7 +81,7 @@ jobs:
           retention-days: 14
 
       - name: Create GitHub Release (Optional)
-        if: ${{ inputs.create_release || startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release) }}
         uses: softprops/action-gh-release@v2
         with:
           files: Orbit-win32-x64-portable.zip
