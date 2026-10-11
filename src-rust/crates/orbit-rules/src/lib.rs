@@ -40,6 +40,7 @@ pub type Result<T> = std::result::Result<T, RulesError>;
 pub struct RuleFrontmatter {
     pub description: String,
     pub globs: Vec<String>,
+    #[serde(default, rename = "alwaysApply", alias = "always_apply")]
     pub always_apply: bool,
 }
 
@@ -522,6 +523,30 @@ impl RuleMatcher {
             .filter_map(|&idx| self.rules.get(idx))
             .collect()
     }
+
+    /// Returns rules that target specific files (i.e. not always_apply and has non-empty globs).
+    pub fn file_specific_rules(&self) -> Vec<&Rule> {
+        self.rules
+            .iter()
+            .filter(|r| !r.always_apply && !r.globs.is_empty())
+            .collect()
+    }
+
+    /// Partitions all loaded rules into (always_apply, file_specific), exactly matching Cursor rules categorization.
+    pub fn categorize_rules(&self) -> (Vec<&Rule>, Vec<&Rule>) {
+        let mut always = Vec::new();
+        let mut file_specific = Vec::new();
+
+        for rule in &self.rules {
+            if rule.always_apply || rule.globs.is_empty() {
+                always.push(rule);
+            } else {
+                file_specific.push(rule);
+            }
+        }
+
+        (always, file_specific)
+    }
 }
 
 fn normalize_path(path_str: &str) -> String {
@@ -533,6 +558,7 @@ fn normalize_path(path_str: &str) -> String {
 pub struct PromptSectionBuilder<'a> {
     rules: Vec<&'a Rule>,
     wrap_tags: bool,
+    tag_name: String,
 }
 
 impl<'a> PromptSectionBuilder<'a> {
@@ -540,6 +566,7 @@ impl<'a> PromptSectionBuilder<'a> {
         Self {
             rules: Vec::new(),
             wrap_tags: true,
+            tag_name: "cursor_rules".to_string(),
         }
     }
 
@@ -547,6 +574,7 @@ impl<'a> PromptSectionBuilder<'a> {
         Self {
             rules: rules.iter().collect(),
             wrap_tags: true,
+            tag_name: "cursor_rules".to_string(),
         }
     }
 
@@ -554,6 +582,7 @@ impl<'a> PromptSectionBuilder<'a> {
         Self {
             rules: rules.into_iter().collect(),
             wrap_tags: true,
+            tag_name: "cursor_rules".to_string(),
         }
     }
 
@@ -564,6 +593,11 @@ impl<'a> PromptSectionBuilder<'a> {
 
     pub fn wrap_tags(&mut self, wrap: bool) -> &mut Self {
         self.wrap_tags = wrap;
+        self
+    }
+
+    pub fn tag_name(&mut self, tag: impl Into<String>) -> &mut Self {
+        self.tag_name = tag.into();
         self
     }
 
@@ -581,7 +615,9 @@ impl<'a> PromptSectionBuilder<'a> {
         }
 
         let mut out = String::with_capacity(4096);
-        out.push_str("<cursor_rules>\n");
+        out.push('<');
+        out.push_str(&self.tag_name);
+        out.push_str(">\n");
 
         for (i, rule) in self.rules.iter().enumerate() {
             if i > 0 {
@@ -605,7 +641,9 @@ impl<'a> PromptSectionBuilder<'a> {
             }
         }
 
-        out.push_str("</cursor_rules>\n");
+        out.push_str("</");
+        out.push_str(&self.tag_name);
+        out.push_str(">\n");
         out
     }
 
@@ -641,6 +679,18 @@ fn escape_xml_attr(s: &str) -> String {
 
 pub fn format_cursor_rules(rules: &[&Rule]) -> String {
     PromptSectionBuilder::with_rules(rules.iter().copied()).build()
+}
+
+pub fn format_always_applied_workspace_rules(rules: &[&Rule]) -> String {
+    let mut builder = PromptSectionBuilder::with_rules(rules.iter().copied());
+    builder.tag_name("always_applied_workspace_rules");
+    builder.build()
+}
+
+pub fn format_agent_requestable_workspace_rules(rules: &[&Rule]) -> String {
+    let mut builder = PromptSectionBuilder::with_rules(rules.iter().copied());
+    builder.tag_name("agent_requestable_workspace_rules");
+    builder.build()
 }
 
 #[cfg(test)]
@@ -965,5 +1015,35 @@ No warnings allowed.
         assert!(safety
             .content
             .contains("Orbit Agent Safety and UI Consistency"));
+    }
+
+    #[test]
+    fn test_cursor_rules_categorization_and_xml_tags() {
+        let rule1 = Rule::new("always", "Always active", vec![], true, "Rule 1");
+        let rule2 = Rule::new(
+            "specific",
+            "TypeScript only",
+            vec!["*.ts".into()],
+            false,
+            "Rule 2",
+        );
+        let rule3 = Rule::new("no-globs", "No globs specified", vec![], false, "Rule 3");
+
+        let matcher = RuleMatcher::new(vec![rule1, rule2, rule3]).unwrap();
+        let (always, specific) = matcher.categorize_rules();
+        assert_eq!(always.len(), 2); // rule1 (always_apply=true) and rule3 (globs empty)
+        assert_eq!(specific.len(), 1); // rule2
+        assert_eq!(specific[0].name, "specific");
+
+        let always_xml = format_always_applied_workspace_rules(&always);
+        assert!(always_xml.starts_with("<always_applied_workspace_rules>\n"));
+        assert!(always_xml.ends_with("</always_applied_workspace_rules>\n"));
+        assert!(always_xml.contains("Rule 1"));
+        assert!(always_xml.contains("Rule 3"));
+
+        let req_xml = format_agent_requestable_workspace_rules(&specific);
+        assert!(req_xml.starts_with("<agent_requestable_workspace_rules>\n"));
+        assert!(req_xml.ends_with("</agent_requestable_workspace_rules>\n"));
+        assert!(req_xml.contains("Rule 2"));
     }
 }

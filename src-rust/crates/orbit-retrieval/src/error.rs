@@ -27,4 +27,15 @@ pub enum RetrievalError {
     OrbitCommon(#[from] orbit_common::OrbitError),
 }
 
+impl From<RetrievalError> for orbit_common::OrbitError {
+    fn from(err: RetrievalError) -> Self {
+        match err {
+            RetrievalError::Io(e) => orbit_common::OrbitError::Io(e),
+            RetrievalError::Serialization(e) => orbit_common::OrbitError::Serialization(e),
+            RetrievalError::OrbitCommon(e) => e,
+            other => orbit_common::OrbitError::ToolExecution(other.to_string()),
+        }
+    }
+}
+
 pub type Result<T> = std::result::Result<T, RetrievalError>;

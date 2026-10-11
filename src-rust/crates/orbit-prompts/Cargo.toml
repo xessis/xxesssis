@@ -7,6 +7,8 @@ license.workspace = true
 [dependencies]
 orbit-common = { workspace = true }
 orbit-models = { workspace = true }
+orbit-rules = { workspace = true }
+regex = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

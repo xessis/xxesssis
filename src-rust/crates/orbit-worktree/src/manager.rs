@@ -654,7 +654,8 @@ fn current_epoch_ms() -> u64 {
 }
 
 fn normalize_path(path: &Path) -> PathBuf {
-    let s = path.to_string_lossy().replace('\\', "/");
+    let canonical = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+    let s = canonical.to_string_lossy().replace('\\', "/");
     let s = s.strip_prefix("//?/").unwrap_or(&s);
     let s = s.strip_prefix(r"\\?\").unwrap_or(s);
     let s = s.trim_end_matches('/');
@@ -664,7 +665,16 @@ fn normalize_path(path: &Path) -> PathBuf {
 fn paths_are_equivalent(p1: &Path, p2: &Path) -> bool {
     let s1 = normalize_path(p1).to_string_lossy().to_lowercase();
     let s2 = normalize_path(p2).to_string_lossy().to_lowercase();
-    s1 == s2
+    if s1 == s2 {
+        return true;
+    }
+    let raw1 = p1.to_string_lossy().replace('\\', "/").to_lowercase();
+    let raw2 = p2.to_string_lossy().replace('\\', "/").to_lowercase();
+    let r1 = raw1.strip_prefix("//?/").unwrap_or(&raw1);
+    let r1 = r1.strip_prefix(r"\\?\").unwrap_or(r1).trim_end_matches('/');
+    let r2 = raw2.strip_prefix("//?/").unwrap_or(&raw2);
+    let r2 = r2.strip_prefix(r"\\?\").unwrap_or(r2).trim_end_matches('/');
+    r1 == r2
 }
 
 fn extract_task_id(worktree_path: &Path) -> String {
@@ -770,21 +780,37 @@ pub fn parse_worktree_list_porcelain(raw: &str, repo_root: &Path) -> Vec<Worktre
     let mut results = Vec::new();
     let normalized_root = normalize_path(repo_root);
 
-    let blocks = raw.split("\n\n");
-    for block in blocks {
-        let trimmed = block.trim();
-        if trimmed.is_empty() {
-            continue;
-        }
+    // Normalize CRLF to LF so blocks can be split cleanly on any platform
+    let normalized_raw = raw.replace("\r\n", "\n");
+    let mut current_block: Vec<&str> = Vec::new();
+    let mut blocks: Vec<Vec<&str>> = Vec::new();
 
+    for line in normalized_raw.lines() {
+        let trimmed_line = line.trim();
+        if trimmed_line.is_empty() {
+            if !current_block.is_empty() {
+                blocks.push(current_block);
+                current_block = Vec::new();
+            }
+        } else if trimmed_line.starts_with("worktree ") && !current_block.is_empty() {
+            blocks.push(current_block);
+            current_block = vec![trimmed_line];
+        } else {
+            current_block.push(trimmed_line);
+        }
+    }
+    if !current_block.is_empty() {
+        blocks.push(current_block);
+    }
+
+    for block_lines in blocks {
         let mut path_opt: Option<PathBuf> = None;
         let mut head_opt: Option<String> = None;
         let mut branch_opt: Option<String> = None;
         let mut is_locked = false;
         let mut lock_reason: Option<String> = None;
 
-        for line in trimmed.lines() {
-            let line = line.trim();
+        for line in block_lines {
             if let Some(rest) = line.strip_prefix("worktree ") {
                 path_opt = Some(PathBuf::from(rest.trim()));
             } else if let Some(rest) = line.strip_prefix("HEAD ") {
@@ -1031,5 +1057,15 @@ locked
             Path::new("C:/repo/myrepo/"),
             Path::new("C:/repo/myrepo")
         ));
+    }
+
+    #[test]
+    fn test_parse_worktree_list_porcelain_crlf() {
+        let repo_root = Path::new("C:/repos/myrepo");
+        let sample_output = "worktree C:/repos/myrepo\r\nHEAD 1111111111111111111111111111111111111111\r\nbranch refs/heads/main\r\n\r\nworktree C:/repos/myrepo/.orbit/worktrees/task-crlf\r\nHEAD 2222222222222222222222222222222222222222\r\nbranch refs/heads/orbit/task-crlf\r\n\r\n";
+        let worktrees = parse_worktree_list_porcelain(sample_output, repo_root);
+        assert_eq!(worktrees.len(), 1);
+        assert_eq!(worktrees[0].task_id, "task-crlf");
+        assert_eq!(worktrees[0].branch, "orbit/task-crlf");
     }
 }

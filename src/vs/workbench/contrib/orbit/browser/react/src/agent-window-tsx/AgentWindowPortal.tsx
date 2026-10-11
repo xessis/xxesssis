@@ -9,6 +9,7 @@ import { ChatHistory } from '../chathistory-tsx/ChatHistory.js';
 import { Sidebar } from '../sidebar-tsx/Sidebar.js';
 import { VoidTooltip } from '../orbit-tooltip/orbitTooltip.js';
 import { AgentWorkspace } from './AgentWorkspace.js';
+import { AgentTopBar } from './AgentTopBar.js';
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js';
 import { useAccessor, useAgentWorkspaceState, useChatThreadsState } from '../util/services.js';
 
@@ -47,12 +48,22 @@ const AgentWindowChat = () => {
 		// ensureAgentWindowThread syncs the thread into the active workspace.
 		// Keeps height/scroll so the surrounding portal layout doesn't jump.
 		return (
-			<div className="w-full h-full flex items-center justify-center text-void-fg-3 text-sm select-none">
-				Preparing agent…
+			<div className="w-full h-full flex flex-col">
+				<AgentTopBar />
+				<div className="flex-1 w-full flex items-center justify-center text-void-fg-3 text-sm select-none">
+					Preparing agent…
+				</div>
 			</div>
 		);
 	}
-	return <Sidebar key={threadId} className="" isAgentWindow />;
+	return (
+		<div className="w-full h-full flex flex-col overflow-hidden">
+			<AgentTopBar />
+			<div className="flex-1 min-h-0 overflow-hidden">
+				<Sidebar key={threadId} className="" isAgentWindow />
+			</div>
+		</div>
+	);
 };
 
 /**

@@ -155,18 +155,18 @@ pub enum Language {
 impl Language {
     pub fn from_path(path: &str) -> Self {
         let p = std::path::Path::new(path);
-        let ext = p.extension().and_then(|e| e.to_str()).unwrap_or("");
+        let ext = p.extension().and_then(|e| e.to_str()).unwrap_or(path);
         match ext.to_ascii_lowercase().as_str() {
-            "rs" => Language::Rust,
-            "js" | "mjs" | "cjs" | "jsx" => Language::JavaScript,
-            "ts" | "mts" | "cts" | "tsx" => Language::TypeScript,
-            "py" | "pyw" => Language::Python,
+            "rs" | "rust" => Language::Rust,
+            "js" | "mjs" | "cjs" | "jsx" | "javascript" => Language::JavaScript,
+            "ts" | "mts" | "cts" | "tsx" | "typescript" => Language::TypeScript,
+            "py" | "pyw" | "python" => Language::Python,
             "c" | "h" => Language::C,
-            "cpp" | "cc" | "cxx" | "hpp" | "hh" => Language::Cpp,
-            "go" => Language::Go,
+            "cpp" | "cc" | "cxx" | "hpp" | "hh" | "c++" => Language::Cpp,
+            "go" | "golang" => Language::Go,
             "java" => Language::Java,
-            "cs" => Language::CSharp,
-            "sh" | "bash" | "zsh" => Language::Shell,
+            "cs" | "csharp" => Language::CSharp,
+            "sh" | "bash" | "zsh" | "shell" => Language::Shell,
             "yaml" | "yml" => Language::Yaml,
             "toml" => Language::Toml,
             _ => Language::Generic,

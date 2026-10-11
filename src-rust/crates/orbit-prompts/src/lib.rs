@@ -1,159 +1,110 @@
-use orbit_common::ChatMode;
-use std::fmt::Write;
+pub mod harness;
+pub mod modes;
+pub mod slash_commands;
+pub mod system_prompt;
+pub mod templates;
+pub mod tools;
+pub mod xml;
 
-pub struct EnvironmentContext<'a> {
-    pub os: &'a str,
-    pub workspace_folders: &'a [&'a str],
-    pub active_file: Option<&'a str>,
-    pub open_files: &'a [&'a str],
-}
-
-pub struct SystemPromptOptions<'a> {
-    pub mode: ChatMode,
-    pub model_name: &'a str,
-    pub env: EnvironmentContext<'a>,
-    pub skills: Option<&'a [(&'a str, &'a str)]>, // (name, description)
-    pub custom_instructions: Option<&'a str>,
-}
-
-pub fn generate_system_prompt(opts: &SystemPromptOptions) -> String {
-    let mut out = String::with_capacity(8192);
-
-    let _ = writeln!(
-        out,
-        "You are an AI coding assistant, powered by {}.\nYou operate in Orbit Editor.",
-        opts.model_name
-    );
-
-    // 1. Tone and style
-    out.push_str("\n<tone_and_style>\n");
-    out.push_str("- Be direct, concise, and technically accurate.\n");
-    out.push_str("- Do not use emojis unless explicitly requested.\n");
-    out.push_str("- Always cite files and line numbers in the format `path:line`.\n");
-    out.push_str("</tone_and_style>\n");
-
-    // 2. Skills
-    if let Some(skills) = opts.skills {
-        if !skills.is_empty() {
-            out.push_str("\n<available_skills>\n");
-            for (name, desc) in skills {
-                let _ = writeln!(out, "  - {}: {}", name, desc);
-            }
-            out.push_str("</available_skills>\n");
-        }
-    }
-
-    // 3. Mode policies
-    match opts.mode {
-        ChatMode::Normal => {
-            out.push_str("\n<chat_mode>\n");
-            out.push_str("You are in Ask / Normal mode. Provide answers and guidance. Mutating file tools are restricted.\n");
-            out.push_str("</chat_mode>\n");
-        }
-        ChatMode::Plan => {
-            out.push_str("\n<plan_mode_guardrails>\n");
-            out.push_str("You are in Plan mode. Research and outline the architecture. Only edit markdown plan files.\n");
-            out.push_str("</plan_mode_guardrails>\n");
-        }
-        ChatMode::Agent => {
-            out.push_str("\n<agent_mode_guidelines>\n");
-            out.push_str("You are in Agent mode. You have full tool execution capabilities.\n");
-            out.push_str("- Always inspect files with `Read` before applying edits.\n");
-            out.push_str("- Use Fast Apply search/replace blocks or targeted edits.\n");
-            out.push_str("</agent_mode_guidelines>\n");
-        }
-    }
-
-    // 4. Environment
-    out.push_str("\n<environment_information>\n");
-    let _ = writeln!(out, "- OS: {}", opts.env.os);
-    let _ = writeln!(
-        out,
-        "- Workspace: {}",
-        if opts.env.workspace_folders.is_empty() {
-            "None"
-        } else {
-            opts.env.workspace_folders[0]
-        }
-    );
-    if let Some(act) = opts.env.active_file {
-        let _ = writeln!(out, "- Active File: {}", act);
-    }
-    if !opts.env.open_files.is_empty() {
-        let _ = writeln!(out, "- Open Files: {}", opts.env.open_files.join(", "));
-    }
-    out.push_str("</environment_information>\n");
-
-    // 5. Custom instructions
-    if let Some(custom) = opts.custom_instructions {
-        if !custom.trim().is_empty() {
-            out.push_str("\n<user_instructions>\n");
-            out.push_str(custom.trim());
-            out.push_str("\n</user_instructions>\n");
-        }
-    }
-
-    out
-}
-
-pub fn expand_slash_command(command: &str, user_query: &str) -> Option<String> {
-    match command {
-        "/explain" => Some(format!(
-            "Please explain the selected code or concept thoroughly:\n{}",
-            user_query
-        )),
-        "/fix" => Some(format!(
-            "Please identify bugs, type errors, or issues and propose a fix for:\n{}",
-            user_query
-        )),
-        "/test" => Some(format!(
-            "Please write comprehensive unit and edge-case tests for:\n{}",
-            user_query
-        )),
-        "/refactor" => Some(format!(
-            "Please refactor this code for cleanliness and performance without changing behavior:\n{}",
-            user_query
-        )),
-        _ => None,
-    }
-}
+// Re-exports
+pub use harness::{augment_chat_messages_with_harness_context, format_harness_timestamp};
+pub use modes::{
+    mode_system_prompt_guardrails, mode_system_reminder, ToolPolicy,
+    BACKGROUND_AGENT_SYSTEM_REMINDER, MERMAID_SYNTAX_REMINDER, MULTITASK_MODE_SYSTEM_REMINDER,
+    NORMAL_MODE_SYSTEM_REMINDER, PLAN_MODE_SYSTEM_REMINDER,
+};
+pub use slash_commands::{
+    expand_slash_command, list_slash_commands, SlashCommand, SlashCommandInfo,
+};
+pub use system_prompt::{
+    generate_system_prompt, EnvironmentContext, SkillInfo, SystemPromptOptions,
+};
+pub use templates::{
+    ctrl_k_stream_system_prompt, ctrl_k_stream_user_prompt, git_commit_user_prompt,
+    rewrite_code_user_prompt, QuickEditFimTags, CREATE_SEARCH_REPLACE_BLOCKS_SYSTEM_MESSAGE,
+    DIVIDER, FINAL, GIT_COMMIT_SYSTEM_MESSAGE, ORIGINAL, REWRITE_CODE_SYSTEM_MESSAGE,
+    SEARCH_REPLACE_BLOCK_TEMPLATE,
+};
+pub use tools::{
+    ask_question_tool, builtin_tool_catalog, create_plan_tool, edit_tool, format_tool_call_xml,
+    format_tools_xml_definitions, glob_tool, grep_tool, read_tool, terminal_tool, todo_tool,
+    web_fetch_tool, web_search_tool, write_tool, ToolDefinition, ToolParameter,
+};
+pub use xml::{
+    escape_xml_attr, escape_xml_text, extract_user_query, sanitize_system_reminder,
+    strip_context_tags, wrap_tag, STRIPPED_CONTEXT_TAGS,
+};
 
 #[cfg(test)]
-mod tests {
+mod integration_tests {
     use super::*;
+    use orbit_common::{ChatMessage, ChatMode};
+    use orbit_rules::Rule;
 
     #[test]
-    fn test_generate_system_prompt_agent_mode() {
+    fn test_full_pipeline_harness_and_system_prompt() {
+        // 1. Setup workspace environment
         let env = EnvironmentContext {
             os: "windows",
-            workspace_folders: &["C:/projects/myapp"],
+            workspace_folders: &["C:/projects/orbiteditor"],
             active_file: Some("src/main.rs"),
-            open_files: &["src/main.rs", "src/lib.rs"],
+            open_files: &["src/main.rs"],
+            active_shell_sessions: &["1"],
+            directory_structure: Some("src/main.rs"),
         };
 
-        let skills = [("rust-expert", "Idiomatic Rust guidance")];
+        let rule = Rule::new(
+            "agent-safety",
+            "Safety invariants",
+            vec![],
+            true,
+            "Never do unsafe things.",
+        );
 
         let prompt = generate_system_prompt(&SystemPromptOptions {
-            mode: ChatMode::Agent,
+            mode: ChatMode::Plan,
             model_name: "claude-3-7-sonnet",
             env,
-            skills: Some(&skills),
-            custom_instructions: Some("Strict zero slop rules."),
+            skills: None,
+            mcp_servers: None,
+            rules: Some(&[&rule]),
+            custom_instructions: Some("Be extra diligent."),
+            include_tool_definitions: true,
+            custom_tools: None,
+            enable_browser_automation: false,
         });
 
-        assert!(prompt.contains("powered by claude-3-7-sonnet"));
-        assert!(prompt.contains("<agent_mode_guidelines>"));
-        assert!(prompt.contains("rust-expert: Idiomatic Rust guidance"));
-        assert!(prompt.contains("- OS: windows"));
-        assert!(prompt.contains("Strict zero slop rules."));
-    }
+        // Verify XML sections
+        assert!(prompt.contains("<system-communication>"));
+        assert!(prompt.contains("<tone_and_style>"));
+        assert!(prompt.contains("<plan_mode_guardrails>"));
+        assert!(prompt.contains("<citing_code>"));
+        assert!(prompt.contains("<always_applied_workspace_rules>"));
+        assert!(prompt.contains("Safety invariants"));
+        assert!(prompt.contains("<user_instructions>"));
+        assert!(prompt.contains("<tool_definitions>"));
 
-    #[test]
-    fn test_expand_slash_command() {
-        let expanded = expand_slash_command("/fix", "error on line 42").unwrap();
-        assert!(expanded.contains("Please identify bugs"));
-        assert!(expanded.contains("error on line 42"));
+        // 2. Harness augmentation on user message
+        let messages = vec![
+            ChatMessage::system("You are Orbit Assistant"),
+            ChatMessage::user("Please build feature X"),
+        ];
 
-        assert!(expand_slash_command("/unknown", "foo").is_none());
+        let augmented = augment_chat_messages_with_harness_context(&messages, ChatMode::Plan);
+        let user_msg = &augmented[1];
+        assert!(user_msg.content.contains("<system_reminder>"));
+        assert!(user_msg.content.contains("Plan mode is active"));
+        assert!(user_msg
+            .content
+            .contains("<user_query>\nPlease build feature X\n</user_query>"));
+
+        // 3. Slash command expansion
+        let expanded = expand_slash_command("/explain", "what is this architecture?").unwrap();
+        assert!(expanded.contains("Break down the architecture"));
+
+        // 4. XML tag stripping
+        let cleaned = strip_context_tags(&user_msg.content);
+        assert!(!cleaned.contains("<system_reminder>"));
+        assert!(cleaned.contains("Please build feature X"));
     }
 }

@@ -36,4 +36,15 @@ pub enum WorktreeError {
     Common(#[from] orbit_common::OrbitError),
 }
 
+impl From<WorktreeError> for orbit_common::OrbitError {
+    fn from(err: WorktreeError) -> Self {
+        match err {
+            WorktreeError::Io(e) => orbit_common::OrbitError::Io(e),
+            WorktreeError::Serialization(e) => orbit_common::OrbitError::Serialization(e),
+            WorktreeError::Common(e) => e,
+            other => orbit_common::OrbitError::ToolExecution(other.to_string()),
+        }
+    }
+}
+
 pub type Result<T> = std::result::Result<T, WorktreeError>;

@@ -27,7 +27,7 @@ export const AgentWorkspaceHeader = () => {
 	const anchorRef = useRef<HTMLButtonElement>(null);
 
 	const active = state.activeWorkspaceId ? state.workspaces[state.activeWorkspaceId] : null;
-	const label = active?.name ?? 'Select Workspace';
+	const label = active?.name ?? 'No Repo';
 	const hasWorkspace = !!active;
 
 	useEffect(() => {
@@ -77,7 +77,7 @@ export const AgentWorkspaceHeader = () => {
 				title={displayPath ?? label}
 				aria-haspopup="dialog"
 				aria-expanded={pickerOpen}
-				aria-label={hasWorkspace ? `Workspace: ${label}` : 'Select workspace'}
+				aria-label={hasWorkspace ? `Workspace: ${label}` : 'No Repo'}
 			>
 				<span className="agent-workspace-header-btn-label">{label}</span>
 				<ChevronDown size={12} strokeWidth={2} className="agent-workspace-header-btn-chevron" aria-hidden />

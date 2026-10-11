@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import React from 'react';
+import { Plus, Lock, Mic } from 'lucide-react';
 import { FeatureName } from '../../../../../../common/orbitSettingsTypes.js';
 import { StagingSelectionItem } from '../../../../../../common/chatThreadServiceTypes.js';
 import { ModelDropdown } from '../../../orbit-settings-tsx/ModelDropdown.js';
@@ -129,36 +130,70 @@ export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 					)}
 				</div>
 			</div>
-			{/* Bottom row - stays fixed while content scrolls */}
-			<div className='flex flex-row justify-between items-end gap-2 shrink-0 pt-2 flex-nowrap'>
-				{showModelDropdown && (
-					<div className="flex items-center gap-x-2 gap-y-1 text-nowrap min-w-0 overflow-hidden">
-						{featureName === 'Chat' && (
-					<ChatModeDropdown
-						className="
-							flex items-center gap-1
-							px-2 py-1
-							rounded-full
-							bg-[var(--void-pill-card-bg)]
-							text-[var(--void-fg-2)]
-							text-xs
-							cursor-pointer select-none
-							hover:bg-[var(--void-pill-card-bg-hover)]
-							transition-colors
-							min-w-0
-							shrink
-							overflow-hidden whitespace-nowrap text-ellipsis
-						"
-					/>
-						)}
-					<ModelDropdown
-						featureName={featureName}
-						className="w-[140px] sm:w-[180px] min-w-[100px] text-xs leading-5 px-2 shrink grow"
-					/>
-					</div>
-				)}
-			<div className="flex items-center gap-1.5 ml-auto">
-				{imageButton}
+			{/* Bottom row - Cursor parity toolbar */}
+			<div className='flex flex-row justify-between items-center gap-2 shrink-0 pt-2 flex-nowrap'>
+				{/* Bottom-left: + Attachment Button & Model Selector Badge */}
+				<div className="flex items-center gap-2 text-nowrap min-w-0 overflow-hidden">
+					{/* + Attachment button */}
+					<button
+						type="button"
+						className="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white flex items-center justify-center border border-white/10 transition-colors shrink-0 cursor-pointer"
+						title="Add attachment"
+						aria-label="Add attachment"
+						onClick={(e) => {
+							e.stopPropagation();
+						}}
+					>
+						<Plus size={13} className="stroke-[2.2]" />
+					</button>
+
+					{featureName === 'Chat' && (
+						<ChatModeDropdown
+							className="
+								flex items-center gap-1
+								px-2 py-0.5
+								rounded-full
+								bg-[var(--void-pill-card-bg)]
+								text-[var(--void-fg-2)]
+								text-xs
+								cursor-pointer select-none
+								hover:bg-[var(--void-pill-card-bg-hover)]
+								transition-colors
+								min-w-0
+								shrink
+								overflow-hidden whitespace-nowrap text-ellipsis
+							"
+						/>
+					)}
+
+					{/* Model selector badge with Lock icon */}
+					{showModelDropdown && (
+						<div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#1e1e1e] border border-[#2e2e2e] text-xs text-zinc-200">
+							<Lock size={11} className="text-zinc-400 shrink-0" />
+							<ModelDropdown
+								featureName={featureName}
+								className="w-[120px] sm:w-[155px] min-w-[90px] text-xs leading-5 bg-transparent border-0 px-0 shrink grow"
+							/>
+						</div>
+					)}
+				</div>
+
+				{/* Bottom-right: Microphone dictation & Submit button */}
+				<div className="flex items-center gap-1.5 ml-auto shrink-0">
+					{imageButton}
+					{/* Microphone icon button (solid white circle with dark mic) */}
+					<button
+						type="button"
+						className="w-7 h-7 rounded-full bg-white hover:bg-zinc-200 text-black flex items-center justify-center transition-transform active:scale-95 shadow-sm cursor-pointer shrink-0"
+						title="Voice Dictation"
+						aria-label="Voice Dictation"
+						onClick={(e) => {
+							e.stopPropagation();
+						}}
+					>
+						<Mic size={14} className="stroke-[2.2] text-zinc-900" />
+					</button>
+
 					{isStreaming && loadingIcon}
 					{isStreaming ? (
 						<>

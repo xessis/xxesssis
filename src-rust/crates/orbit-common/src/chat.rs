@@ -10,11 +10,18 @@ pub enum ChatRole {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum ChatMode {
+    #[serde(alias = "normal", alias = "chat")]
     Normal,
+    #[serde(alias = "plan")]
     Plan,
+    #[serde(alias = "agent")]
     Agent,
+    #[serde(alias = "multitask")]
+    Multitask,
+    #[serde(alias = "background", alias = "background_agent")]
+    BackgroundAgent,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

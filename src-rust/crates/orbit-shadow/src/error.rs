@@ -31,4 +31,10 @@ impl From<OrbitError> for ShadowError {
     }
 }
 
+impl From<ShadowError> for orbit_common::OrbitError {
+    fn from(err: ShadowError) -> Self {
+        orbit_common::OrbitError::DiffApply(err.to_string())
+    }
+}
+
 pub type Result<T> = std::result::Result<T, ShadowError>;

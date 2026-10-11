@@ -9,7 +9,7 @@ import '../styles.css';
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js';
 import { IconShell1 } from '../markdown/ApplyBlockHoverButtons.js';
 import { OrbitUserProfileFooter } from '../shared/OrbitUserProfileFooter.js';
-import { Check, Copy, FolderPlus, MessageSquarePlus, Trash2, X, MoreHorizontal, LayoutGrid, Search, ListFilter, ChevronDown } from 'lucide-react';
+import { Check, Copy, FolderPlus, MessageSquarePlus, Trash2, X, MoreHorizontal, LayoutGrid, Search, ListFilter, ChevronDown, Folder, Home, Plus, SlidersHorizontal, Bot } from 'lucide-react';
 import { IsRunningType, ThreadType } from '../../../chatThreadService.js';
 import { filterThreadsByWorkspaceId } from '../../../../common/agentWorkspaceHelpers.js';
 import {
@@ -575,72 +575,180 @@ const ChatHistoryHeader = ({
 	const accessor = useAccessor();
 	const commandService = accessor.get('ICommandService');
 	const keybindingService = accessor.get('IKeybindingService');
+	const workspaceService = accessor.get('IAgentProjectWorkspaceService');
+	const agentWorkspaceState = useAgentWorkspaceState();
+	const fileDialogService = accessor.get('IFileDialogService');
 
-	const newThreadKeybindLabel = keybindingService.lookupKeybinding('void.cmdShiftL')?.getLabel();
+	const newThreadKeybindLabel = keybindingService.lookupKeybinding('void.cmdShiftL')?.getLabel() || 'Ctrl+N';
 
 	const handleCustomize = () => {
 		try { commandService.executeCommand('workbench.action.openVoidCustomize'); }
 		catch (error) { console.error('Error opening Customize:', error); }
 	};
 
-	return (
-		<div className="flex flex-col gap-0.5 mb-1 flex-shrink-0 p-3 pb-2">
-			{/* Search Bar */}
-			<div
-				className={`
-					flex items-center gap-2 px-2 py-1.5 mb-1.5 rounded-md
-					bg-zinc-700/5 dark:bg-zinc-300/5
-				`}
-			>
-				<Search size={13} className="flex-shrink-0 text-void-fg-3 opacity-60" />
-			<input
-				type="text"
-				placeholder="Search Agents..."
-				value={searchQuery}
-				onChange={(e) => setSearchQuery(e.target.value)}
-				onFocus={() => setIsSearchFocused(true)}
-				onBlur={() => setIsSearchFocused(false)}
-				aria-label="Search agents"
-				className="@@chat-history-search-input flex-1 bg-transparent outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--vscode-focusBorder,#0078d4)] rounded text-[13px] text-void-fg-0 placeholder:text-void-fg-3 placeholder:opacity-50"
-			/>
-			</div>
+	const handleAutomations = () => {
+		try { commandService.executeCommand('workbench.action.openVoidSettings'); }
+		catch (error) { console.error('Error opening Automations:', error); }
+	};
 
-			{/* New Agent Row */}
+	const handleNewProject = async () => {
+		try {
+			const uris = await fileDialogService.showOpenDialog({
+				canSelectFiles: false,
+				canSelectFolders: true,
+				canSelectMany: false,
+				title: 'Select Project Folder',
+			});
+			if (uris && uris[0]) {
+				const ws = await workspaceService.ensureWorkspaceForFolder(uris[0]);
+				workspaceService.setActiveWorkspace(ws.id);
+			}
+		} catch (error) {
+			console.error('Error creating project:', error);
+		}
+	};
+
+	const activeWsId = agentWorkspaceState.activeWorkspaceId;
+	const activeWs = activeWsId ? agentWorkspaceState.workspaces[activeWsId] : null;
+	const otherWorkspaces = Object.values(agentWorkspaceState.workspaces).filter(ws => ws.id !== activeWsId);
+
+	return (
+		<div className="flex flex-col gap-1 mb-1 flex-shrink-0 p-2.5 pb-2 text-zinc-300">
+			{/* + New Chat Button with Ctrl+N */}
 			<button
 				type="button"
 				onClick={onNewThread}
-				className={`
-					w-full py-1.5 px-2 rounded-md
-					hover:bg-zinc-700/5 dark:hover:bg-zinc-300/5
-					text-[13px] text-void-fg-0 transition-colors
-					flex items-center gap-2 opacity-85 hover:opacity-100
-				`}
+				className="w-full py-1.5 px-2.5 rounded-lg bg-[#222222] hover:bg-[#2a2a2a] text-[13px] text-white transition-colors flex items-center justify-between border border-[#303030] shadow-sm mb-1"
 			>
-				<MessageSquarePlus size={14} className="flex-shrink-0" />
-				<span className="flex-1 text-left">New Agent</span>
-				{newThreadKeybindLabel && (
-					<span className="px-1 rounded bg-[var(--vscode-keybindingLabel-background)] text-[var(--vscode-keybindingLabel-foreground)] border border-[var(--vscode-keybindingLabel-border)] text-[10px] opacity-80">
-						{newThreadKeybindLabel}
-					</span>
-				)}
+				<div className="flex items-center gap-2 font-medium">
+					<Plus size={14} className="stroke-[2.2]" />
+					<span>New Chat</span>
+				</div>
+				<span className="px-1.5 py-0.5 rounded bg-[#181818] text-zinc-400 border border-[#333333] text-[10px] font-mono">
+					{newThreadKeybindLabel}
+				</span>
 			</button>
 
-			{/* Customize Row (main window only) */}
-			{!inAgentWindow && (
+			{/* Search Row with Ctrl+K */}
+			<div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-[#1a1a1a] border border-[#262626] mb-1">
+				<Search size={13} className="shrink-0 text-zinc-400" />
+				<input
+					type="text"
+					placeholder="Search"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					onFocus={() => setIsSearchFocused(true)}
+					onBlur={() => setIsSearchFocused(false)}
+					aria-label="Search agents"
+					className="flex-1 bg-transparent outline-none text-[13px] text-zinc-200 placeholder:text-zinc-500"
+				/>
+				<span className="px-1 rounded bg-[#242424] text-zinc-400 text-[10px] font-mono border border-[#333333]">
+					Ctrl+K
+				</span>
+			</div>
+
+			{/* Automations Row */}
+			<button
+				type="button"
+				onClick={handleAutomations}
+				className="w-full py-1.5 px-2 rounded-md hover:bg-white/5 text-[13px] text-zinc-300 hover:text-white transition-colors flex items-center gap-2.5"
+			>
+				<Bot size={14} className="shrink-0 text-zinc-400" />
+				<span className="flex-1 text-left">Automations</span>
+			</button>
+
+			{/* Customize Row */}
+			<button
+				type="button"
+				onClick={handleCustomize}
+				className="w-full py-1.5 px-2 rounded-md hover:bg-white/5 text-[13px] text-zinc-300 hover:text-white transition-colors flex items-center gap-2.5"
+			>
+				<SlidersHorizontal size={14} className="shrink-0 text-zinc-400" />
+				<span className="flex-1 text-left">Customize</span>
+			</button>
+
+			{/* Projects Section */}
+			<div className="mt-2 pt-2 border-t border-[#252525]">
+				<div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+					<span>Projects</span>
+					<button
+						type="button"
+						className="p-0.5 hover:text-white rounded hover:bg-white/10"
+						title="New Project"
+						onClick={handleNewProject}
+					>
+						<Plus size={12} />
+					</button>
+				</div>
 				<button
-					onClick={handleCustomize}
-					className={`
-						chat-history-customize
-						w-full py-1.5 px-2 rounded-md
-						hover:bg-zinc-700/5 dark:hover:bg-zinc-300/5
-						text-[13px] text-void-fg-0 transition-colors
-						flex items-center gap-2 opacity-85 hover:opacity-100
-					`}
+					type="button"
+					onClick={handleNewProject}
+					className="w-full py-1 px-2 rounded-md hover:bg-white/5 text-[12px] text-zinc-400 hover:text-white transition-colors flex items-center gap-2"
 				>
-					<LayoutGrid size={14} className="flex-shrink-0" />
-					<span className="flex-1 text-left">Customize</span>
+					<Plus size={12} className="text-zinc-500" />
+					<span className="flex-1 text-left">New Project</span>
 				</button>
-			)}
+			</div>
+
+			{/* Repositories Section */}
+			<div className="mt-2 pt-2 border-t border-[#252525]">
+				<div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+					<span>Repositories</span>
+					<div className="flex items-center gap-1">
+						<button
+							type="button"
+							className="p-0.5 hover:text-white rounded hover:bg-white/10"
+							title="Filter repositories"
+						>
+							<ListFilter size={12} />
+						</button>
+						<button
+							type="button"
+							className="p-0.5 hover:text-white rounded hover:bg-white/10"
+							title="Add repository"
+							onClick={handleNewProject}
+						>
+							<FolderPlus size={12} />
+						</button>
+					</div>
+				</div>
+
+				<div className="flex flex-col gap-0.5 mt-0.5">
+					{/* Active repository */}
+					{activeWs && (
+						<button
+							type="button"
+							onClick={() => workspaceService.setActiveWorkspace(activeWs.id)}
+							className="w-full py-1 px-2 rounded-md text-[12px] bg-[#222222] text-white font-medium transition-colors flex items-center gap-2"
+						>
+							<Folder size={13} className="text-blue-400 shrink-0" />
+							<span className="flex-1 text-left truncate">{activeWs.name}</span>
+						</button>
+					)}
+					{otherWorkspaces.slice(0, 3).map(ws => (
+						<button
+							key={ws.id}
+							type="button"
+							onClick={() => workspaceService.setActiveWorkspace(ws.id)}
+							className="w-full py-1 px-2 rounded-md text-[12px] text-zinc-400 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2"
+						>
+							<Folder size={13} className="text-zinc-500 shrink-0" />
+							<span className="flex-1 text-left truncate">{ws.name}</span>
+						</button>
+					))}
+					{/* No Repo item */}
+					<button
+						type="button"
+						onClick={() => workspaceService.setActiveWorkspace(null)}
+						className={`w-full py-1 px-2 rounded-md text-[12px] transition-colors flex items-center gap-2 ${
+							activeWsId === null ? 'bg-[#222222] text-white font-medium' : 'text-zinc-400 hover:text-white hover:bg-white/5'
+						}`}
+					>
+						<Home size={13} className="text-zinc-400 shrink-0" />
+						<span className="flex-1 text-left">No Repo</span>
+					</button>
+				</div>
+			</div>
 		</div>
 	);
 };
