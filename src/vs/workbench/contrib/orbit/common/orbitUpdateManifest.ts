@@ -5,7 +5,7 @@
 
 import { isLinux, isMacintosh, isWindows } from '../../../../base/common/platform.js';
 
-export const ORBIT_UPDATE_REPO = 'ashish200729/orbiteditor';
+export const ORBIT_UPDATE_REPO = 'xessis/xxesssis';
 
 export const ORBIT_UPDATE_MANIFEST_URL = `https://raw.githubusercontent.com/${ORBIT_UPDATE_REPO}/main/update/latest.json`;
 

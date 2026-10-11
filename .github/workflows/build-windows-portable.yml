@@ -1,4 +1,4 @@
-name: Build Windows Portable
+name: Build Windows Distribution
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build-windows:
-    name: Build Windows x64 Portable
+    name: Build Windows x64 Distribution
     runs-on: windows-2022
 
     env:
@@ -44,6 +44,17 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Cache Cargo Dependencies & Build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('src-rust/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
       - name: Build Rust Engine Core
         run: |
           cargo build --release --manifest-path src-rust/Cargo.toml
@@ -55,27 +66,46 @@ jobs:
       - name: Build React UI
         run: npm run buildreact
 
-      - name: Build & Package Windows Distribution
+      - name: Build Windows Distribution
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
         run: npx gulp vscode-win32-x64
 
-      - name: Setup Portable Mode & Compress
+      - name: Build Windows User Installer (.exe)
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+        run: npx gulp vscode-win32-x64-user-setup
+
+      - name: Prepare Artifacts (Installer & Portable)
         shell: bash
         run: |
-          # Orbit outputs to ../Orbit-win32-x64
+          # 1. Installer Setup Exe
+          SETUP_EXE=".build/win32-x64/user-setup/VSCodeSetup.exe"
+          if [ -f "$SETUP_EXE" ]; then
+            cp "$SETUP_EXE" OrbitSetup-x64.exe
+            echo "Installer created: OrbitSetup-x64.exe"
+          else
+            echo "Warning: $SETUP_EXE not found!"
+          fi
+
+          # 2. Portable Zip
           WIN_DIR="../Orbit-win32-x64"
           if [ ! -d "$WIN_DIR" ]; then
             WIN_DIR="../VSCode-win32-x64"
           fi
           
-          # Create data folder for 100% self-contained portable mode
           mkdir -p "$WIN_DIR/data"
-          
-          # Bundle the portable zip
           7z a -tzip Orbit-win32-x64-portable.zip "$WIN_DIR/*"
+          echo "Portable zip created: Orbit-win32-x64-portable.zip"
 
-      - name: Upload Portable Zip Artifact
+      - name: Upload Windows Installer (OrbitSetup-x64.exe)
+        uses: actions/upload-artifact@v4
+        with:
+          name: OrbitSetup-x64
+          path: OrbitSetup-x64.exe
+          retention-days: 14
+
+      - name: Upload Windows Portable (Orbit-win32-x64-portable.zip)
         uses: actions/upload-artifact@v4
         with:
           name: Orbit-win32-x64-portable
@@ -86,7 +116,9 @@ jobs:
         if: ${{ startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release) }}
         uses: softprops/action-gh-release@v2
         with:
-          files: Orbit-win32-x64-portable.zip
+          files: |
+            OrbitSetup-x64.exe
+            Orbit-win32-x64-portable.zip
           name: Orbit ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           draft: false
