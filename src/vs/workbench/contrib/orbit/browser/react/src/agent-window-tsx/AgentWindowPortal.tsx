@@ -49,7 +49,6 @@ const AgentWindowChat = () => {
 		// Keeps height/scroll so the surrounding portal layout doesn't jump.
 		return (
 			<div className="w-full h-full flex flex-col">
-				<AgentTopBar />
 				<div className="flex-1 w-full flex items-center justify-center text-void-fg-3 text-sm select-none">
 					Preparing agent…
 				</div>
@@ -58,7 +57,6 @@ const AgentWindowChat = () => {
 	}
 	return (
 		<div className="w-full h-full flex flex-col overflow-hidden">
-			<AgentTopBar />
 			<div className="flex-1 min-h-0 overflow-hidden">
 				<Sidebar key={threadId} className="" isAgentWindow />
 			</div>

@@ -103,11 +103,19 @@ export const OrbitUserProfileFooter = () => {
 						</div>
 						<span className="text-xs font-medium text-white">Getting Started</span>
 					</div>
-					<span className="text-[11px] text-zinc-400 font-mono">2/3</span>
+					<button
+						type="button"
+						className="text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors bg-transparent border-0 cursor-pointer"
+						onClick={(e) => {
+							e.stopPropagation();
+						}}
+					>
+						Skip step 2 of 3
+					</button>
 				</div>
 				<button
 					type="button"
-					className="w-full flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-full bg-[#242424] hover:bg-[#2d2d2d] text-xs font-medium text-white transition-colors border border-[#333333]"
+					className="w-full flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-md bg-[#242424] hover:bg-[#2d2d2d] text-xs font-medium text-white transition-colors border border-[#333333] cursor-pointer"
 					onClick={handleConnectSlack}
 				>
 					{/* Multi-color Slack glyph */}
@@ -116,7 +124,7 @@ export const OrbitUserProfileFooter = () => {
 				</button>
 			</div>
 
-			{/* Account Row: Avatar, Username, Update Button, Settings Gear Icon */}
+			{/* Account Row: Avatar, Username, Settings Gear Icon */}
 			<div className="flex items-center justify-between gap-2 px-1 py-1">
 				<button
 					type="button"
@@ -132,10 +140,10 @@ export const OrbitUserProfileFooter = () => {
 						/>
 					) : (
 						<span
-							className="w-6 h-6 rounded-full bg-[#2a2a2a] text-zinc-200 text-[10px] font-semibold flex items-center justify-center border border-[#383838] shrink-0"
+							className="w-6 h-6 rounded-full bg-[#7c3aed] text-white text-[11px] font-semibold flex items-center justify-center shrink-0"
 							aria-hidden="true"
 						>
-							{getProfileInitials(orbitAuth.login, orbitAuth.email)}
+							{getProfileInitials(orbitAuth.login, orbitAuth.email)[0] ?? 'P'}
 						</span>
 					)}
 					<div className="flex flex-col min-w-0 flex-1">
@@ -150,21 +158,11 @@ export const OrbitUserProfileFooter = () => {
 					</div>
 				</button>
 
-				<div className="flex items-center gap-1.5 shrink-0">
-					{/* Update button */}
-					<button
-						type="button"
-						className="px-2 py-0.5 rounded-full bg-[#222222] hover:bg-[#2a2a2a] text-[11px] text-zinc-300 hover:text-white border border-[#333333] transition-colors"
-						onClick={handleUpdate}
-						title="Check for updates"
-					>
-						{updateChecking ? 'Checking…' : 'Update'}
-					</button>
-
+				<div className="flex items-center gap-1 shrink-0">
 					{/* Settings Gear Icon */}
 					<button
 						type="button"
-						className="p-1 text-zinc-400 hover:text-white hover:bg-white/10 rounded transition-colors"
+						className="p-1 text-zinc-400 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer"
 						onClick={openSettings}
 						title="Settings (⚙)"
 						aria-label="Settings"

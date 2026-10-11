@@ -1318,10 +1318,30 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 			{landingPageInput}
 		</ErrorBoundary>
 
-		{!isSideChat && <ErrorBoundary>
-			<div className='pt-8 mb-2 text-void-fg-0 text-root select-none pointer-events-none'>Suggestions</div>
-			{initiallySuggestedPromptsHTML}
-		</ErrorBoundary>}
+		{inAgentWindow ? (
+			<div className="mt-auto mb-6 flex items-center justify-between p-3 rounded-xl bg-[#1e1e1e] border border-[#2e2e2e] text-xs max-w-[540px] mx-auto w-full">
+				<div className="flex items-center gap-3">
+					<div className="w-7 h-7 rounded-lg bg-[#d97706]/15 flex items-center justify-center text-[#d97706] font-semibold shrink-0">
+						C
+					</div>
+					<div className="flex flex-col">
+						<span className="font-medium text-white text-xs">Import your Claude Code conversations</span>
+						<span className="text-zinc-400 text-[11px]">Sync your chats and continue them in Orbit</span>
+					</div>
+				</div>
+				<button
+					type="button"
+					className="text-zinc-400 hover:text-white text-[11px] px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-pointer"
+				>
+					Dismiss
+				</button>
+			</div>
+		) : !isSideChat ? (
+			<ErrorBoundary>
+				<div className='pt-8 mb-2 text-void-fg-0 text-root select-none pointer-events-none'>Suggestions</div>
+				{initiallySuggestedPromptsHTML}
+			</ErrorBoundary>
+		) : null}
 	</div>
 
 

@@ -1608,9 +1608,8 @@ export class AgentWindowService extends Disposable implements IAgentWindowServic
 	}
 
 	private readWorkspaceCollapsed(): boolean {
-		// Default: workspace visible (shows the empty-state launcher) so the pop-out
-		// reads as a full agent workspace, matching the reference design.
-		return this.storageService.getBoolean(STORAGE_WORKSPACE_COLLAPSED, StorageScope.APPLICATION, false);
+		// Default: workspace collapsed so the view opens as a clean 2-column agent interface (Cursor parity)
+		return this.storageService.getBoolean(STORAGE_WORKSPACE_COLLAPSED, StorageScope.APPLICATION, true);
 	}
 }
 

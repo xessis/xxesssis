@@ -389,7 +389,8 @@ const ChatHistoryContent = ({ inAgentWindow }: { inAgentWindow: boolean }) => {
 				inAgentWindow={inAgentWindow}
 			/>
 
-			{inAgentWindow && unassignedCount > 0 && !dismissedUnassignedBanner && filterMode !== 'unassigned' && (
+			{/* Unassigned banner hidden for Cursor parity cleanliness */}
+			{false && inAgentWindow && unassignedCount > 0 && !dismissedUnassignedBanner && filterMode !== 'unassigned' && (
 				<div className="agent-history-unassigned-banner">
 					These agents were created before workspace support.{' '}
 					<button

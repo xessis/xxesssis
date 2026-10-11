@@ -181,34 +181,29 @@ export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 				{/* Bottom-right: Microphone dictation & Submit button */}
 				<div className="flex items-center gap-1.5 ml-auto shrink-0">
 					{imageButton}
-					{/* Microphone icon button (solid white circle with dark mic) */}
+					{/* Microphone icon button (subtle monoline icon matching Cursor) */}
 					<button
 						type="button"
-						className="w-7 h-7 rounded-full bg-white hover:bg-zinc-200 text-black flex items-center justify-center transition-transform active:scale-95 shadow-sm cursor-pointer shrink-0"
+						className="p-1 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-white/5 transition-colors active:scale-95 cursor-pointer shrink-0"
 						title="Voice Dictation"
 						aria-label="Voice Dictation"
 						onClick={(e) => {
 							e.stopPropagation();
 						}}
 					>
-						<Mic size={14} className="stroke-[2.2] text-zinc-900" />
+						<Mic size={15} className="stroke-[1.8]" />
 					</button>
 
 					{isStreaming && loadingIcon}
 					{isStreaming ? (
-						<>
-							<ButtonStop onClick={onAbort} />
-							{hasMessageToSubmit && <ButtonSubmit
+						<ButtonStop onClick={onAbort} />
+					) : (
+						hasMessageToSubmit && (
+							<ButtonSubmit
 								onClick={onSubmit}
 								disabled={isDisabled}
-								tooltip='Send message — adds it to the queue'
-							/>}
-						</>
-					) : (
-						<ButtonSubmit
-							onClick={onSubmit}
-							disabled={isDisabled}
-						/>
+							/>
+						)
 					)}
 				</div>
 			</div>
