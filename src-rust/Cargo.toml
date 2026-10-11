@@ -14,6 +14,10 @@ members = [
     "crates/orbit-autocomplete",
     "crates/orbit-runner",
     "crates/orbit-git",
+    "crates/orbit-rules",
+    "crates/orbit-retrieval",
+    "crates/orbit-worktree",
+    "crates/orbit-shadow",
 ]
 resolver = "2"
 
@@ -40,6 +44,7 @@ tokio-util = "0.7"
 url = "2.5"
 sha2 = "0.10"
 futures-util = "0.3"
+globset = "0.4"
 orbit-common = { path = "crates/orbit-common" }
 orbit-diff = { path = "crates/orbit-diff" }
 orbit-tools = { path = "crates/orbit-tools" }
@@ -53,3 +58,7 @@ orbit-providers = { path = "crates/orbit-providers" }
 orbit-autocomplete = { path = "crates/orbit-autocomplete" }
 orbit-runner = { path = "crates/orbit-runner" }
 orbit-git = { path = "crates/orbit-git" }
+orbit-rules = { path = "crates/orbit-rules" }
+orbit-retrieval = { path = "crates/orbit-retrieval" }
+orbit-worktree = { path = "crates/orbit-worktree" }
+orbit-shadow = { path = "crates/orbit-shadow" }

@@ -657,6 +657,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "orbit-retrieval"
+version = "0.1.0"
+dependencies = [
+ "blake3",
+ "ignore",
+ "orbit-common",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "orbit-rules"
+version = "0.1.0"
+dependencies = [
+ "globset",
+ "orbit-common",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "orbit-runner"
 version = "0.1.0"
 dependencies = [
@@ -685,6 +708,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "orbit-shadow"
+version = "0.1.0"
+dependencies = [
+ "orbit-common",
+ "orbit-diff",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "orbit-tools"
 version = "0.1.0"
 dependencies = [
@@ -699,6 +733,18 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "orbit-worktree"
+version = "0.1.0"
+dependencies = [
+ "orbit-common",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
  "uuid",
 ]
 
