@@ -189,8 +189,8 @@ class GenerateCommitMessageAction extends Action2 {
 		super({
 			id: 'void.generateCommitMessageAction',
 			title: localize2('voidCommitMessagePrompt', 'Orbit: Generate Commit Message'),
-			icon: ThemeIcon.fromId('sparkle'),
-			tooltip: localize2('voidCommitMessagePromptTooltip', 'Orbit: Generate Commit Message'),
+			icon: ThemeIcon.fromId('git-commit'),
+			tooltip: localize2('voidCommitMessagePromptTooltip', 'Orbit: Generate Commit Message with AI'),
 			f1: true,
 			menu: [{
 				id: MenuId.SCMInputBox,

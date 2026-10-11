@@ -5,7 +5,7 @@
 
 import { Position } from '../../../../../../editor/common/core/position.js';
 import { Range } from '../../../../../../editor/common/core/range.js';
-import { _ln } from '../constants.js';
+import { _ln, MAX_NEWLINES_IN_COMPLETION } from '../constants.js';
 import { removeAllWhitespace } from '../utils/stringUtils.js';
 import { getIsSubsequence, getStringUpToUnbalancedClosingParenthesis } from '../utils/bracketUtils.js';
 import type { Autocompletion, AutocompletionMatchupBounds, PrefixAndSuffixInfo } from '../types.js';
@@ -62,20 +62,21 @@ export const postprocessAutocompletion = ({ autocompletionMatchup, autocompletio
 		}
 	}
 
-	const restOfLineToGenerate = generatedMiddle.slice(startIdx).split(_ln)[0] ?? ''
-	// condition to complete as a single line completion
-	if (
-		prefixToTheLeftOfCursor.trim()
-		&& !suffixToTheRightOfCursor.trim()
-		&& restOfLineToGenerate.trim()
-	) {
-
-		const rawNewlineIdx = generatedMiddle.slice(startIdx).indexOf(_ln)
-		if (rawNewlineIdx > -1) {
-			// console.log('p3', startIdx, rawNewlineIdx)
-			const newlineIdx = rawNewlineIdx + startIdx;
-			endIdx = Math.min(endIdx, newlineIdx)
+	// Allow multi-line speculative completions (Cursor Tab parity) up to MAX_NEWLINES_IN_COMPLETION
+	const remaining = generatedMiddle.slice(startIdx);
+	let newlineCount = 0;
+	let cutoffIdx = -1;
+	for (let i = 0; i < remaining.length; i++) {
+		if (remaining[i] === '\n') {
+			newlineCount++;
+			if (newlineCount >= MAX_NEWLINES_IN_COMPLETION) {
+				cutoffIdx = i;
+				break;
+			}
 		}
+	}
+	if (cutoffIdx > -1) {
+		endIdx = Math.min(endIdx, startIdx + cutoffIdx);
 	}
 
 	// // if a generated line matches with a suffix line, stop

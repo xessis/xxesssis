@@ -20,9 +20,12 @@ class ConvertContribWorkbenchContribution extends Disposable implements IWorkben
 		super()
 
 		const initializeURI = (uri: URI) => {
-			this.workspaceContext.getWorkspace()
 			const orbitRulesURI = URI.joinPath(uri, '.orbitrules')
 			void this.voidModelService.initializeModel(orbitRulesURI).catch(() => { /* optional file */ })
+
+			// Cursor Parity: initialize .cursorrules
+			const cursorRulesURI = URI.joinPath(uri, '.cursorrules')
+			void this.voidModelService.initializeModel(cursorRulesURI).catch(() => { /* optional file */ })
 		}
 
 		// call

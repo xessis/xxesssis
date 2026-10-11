@@ -952,7 +952,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		super()
 	}
 
-	// Read .orbitrules files from workspace folders
+	// Read .orbitrules and .cursorrules files from workspace folders
 	private _getOrbitRulesFileContents(workspaceFolderPaths?: string[]): string {
 		try {
 			const workspaceFolders = workspaceFolderPaths === undefined
@@ -962,8 +962,16 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 			for (const folder of workspaceFolders) {
 				const uri = URI.joinPath(folder, '.orbitrules')
 				const { model } = this.voidModelService.getModel(uri)
-				if (!model) continue
-				orbitRules += model.getValue(EndOfLinePreference.LF) + '\n\n';
+				if (model) {
+					orbitRules += model.getValue(EndOfLinePreference.LF) + '\n\n';
+				}
+
+				// Cursor Parity: .cursorrules
+				const cursorRulesUri = URI.joinPath(folder, '.cursorrules')
+				const { model: cursorModel } = this.voidModelService.getModel(cursorRulesUri)
+				if (cursorModel) {
+					orbitRules += `# Project Rules (.cursorrules)\n` + cursorModel.getValue(EndOfLinePreference.LF) + '\n\n';
+				}
 			}
 			return orbitRules.trim();
 		}
