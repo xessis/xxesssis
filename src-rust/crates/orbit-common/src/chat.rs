@@ -22,6 +22,8 @@ pub enum ChatMode {
     Multitask,
     #[serde(alias = "background", alias = "background_agent")]
     BackgroundAgent,
+    #[serde(alias = "coordinator", alias = "project")]
+    Coordinator,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

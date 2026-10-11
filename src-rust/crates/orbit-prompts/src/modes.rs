@@ -102,6 +102,12 @@ pub const BACKGROUND_AGENT_SYSTEM_REMINDER: &str = r#"Background Agent mode is a
 3. Accurate reporting: If blocked by an insurmountable obstacle, record the exact blocker honestly in your final output rather than hallucinating success.
 4. Clean termination: Ensure all temporary files or processes are cleanly accounted for."#;
 
+pub const COORDINATOR_MODE_SYSTEM_REMINDER: &str = r#"Project Coordinator mode (Cursor Projects parity) is active. You are the single coordinator agent directing the project.
+
+1. You oversee the overall feature/migration without writing code directly.
+2. Break down the user's requirements into concrete tasks and delegate to subagents via the task/subagent tool.
+3. Keep shared context and synthesize finished work back to the user."#;
+
 /// Mode-specific instructions injected as `<system_reminder>` on the latest user message.
 pub fn mode_system_reminder(mode: ChatMode) -> Option<&'static str> {
     match mode {
@@ -109,6 +115,7 @@ pub fn mode_system_reminder(mode: ChatMode) -> Option<&'static str> {
         ChatMode::Normal => Some(NORMAL_MODE_SYSTEM_REMINDER),
         ChatMode::Multitask => Some(MULTITASK_MODE_SYSTEM_REMINDER),
         ChatMode::BackgroundAgent => Some(BACKGROUND_AGENT_SYSTEM_REMINDER),
+        ChatMode::Coordinator => Some(COORDINATOR_MODE_SYSTEM_REMINDER),
         ChatMode::Agent => None,
     }
 }
@@ -154,6 +161,14 @@ pub fn mode_system_prompt_guardrails(mode: ChatMode) -> Option<&'static str> {
 - Produce a clear final report summarizing changes and verification status.
 </background_agent_guidelines>"#,
         ),
+        ChatMode::Coordinator => Some(
+            r#"<coordinator_mode_guidelines>
+- You are the Project Coordinator (Cursor Projects parity).
+- You oversee work and direct other agents that write the code.
+- Because you delegate rather than execute directly, you remain responsive to user direction.
+- Do not make direct code modifications yourself; delegate implementation tasks to subagents.
+</coordinator_mode_guidelines>"#,
+        ),
     }
 }
 
@@ -179,6 +194,13 @@ impl ToolPolicy {
             },
             ChatMode::Plan => Self {
                 allow_file_edits: false, // only markdown plan files through plan tools
+                allow_terminal_commands: false,
+                allow_subagents: true,
+                allow_network: true,
+                read_only_only: true,
+            },
+            ChatMode::Coordinator => Self {
+                allow_file_edits: false, // Coordinator delegates code writing to subagents
                 allow_terminal_commands: false,
                 allow_subagents: true,
                 allow_network: true,
@@ -242,11 +264,17 @@ mod tests {
         assert!(mode_system_reminder(ChatMode::BackgroundAgent)
             .unwrap()
             .contains("Background Agent mode"));
+        assert!(mode_system_reminder(ChatMode::Coordinator)
+            .unwrap()
+            .contains("Project Coordinator"));
         assert!(mode_system_reminder(ChatMode::Agent).is_none());
     }
 
     #[test]
     fn test_mode_tool_policies() {
+        let coord_policy = ToolPolicy::for_mode(ChatMode::Coordinator);
+        assert!(!coord_policy.allow_file_edits);
+        assert!(coord_policy.allow_subagents);
         let normal_policy = ToolPolicy::for_mode(ChatMode::Normal);
         assert!(!normal_policy.is_tool_allowed("Write", false));
         assert!(!normal_policy.is_tool_allowed("Shell", false));

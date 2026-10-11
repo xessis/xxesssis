@@ -172,7 +172,28 @@ export function setDisabledAgentTypes(agentTypes: string[]): void {
 	_fireChange();
 }
 
-export const BUILTIN_SUBAGENTS: SubAgentDefinition[] = [EXPLORE_AGENT, PLAN_AGENT, GENERAL_AGENT];
+export const COORDINATOR_AGENT: SubAgentDefinition = {
+	agentType: 'coordinator',
+	source: 'built-in',
+	permissionMode: 'read_only',
+	disallowedTools: ['StrReplace', 'Write'],
+	whenToUse: 'Project Coordinator Agent (Cursor Projects parity). Oversees large multi-part features, migrations, or apps. Talks with you in one thread, keeps shared project context, plans the work, and delegates tasks to parallel subagents so you never need to manage multiple chats.',
+	maxTurns: 60,
+	getSystemPrompt: () => `You are the Project Coordinator Agent for Orbit Editor (Cursor Projects parity).
+
+Your role is to oversee the project and direct other agents that execute the work. Because you delegate rather than execute directly, you are never blocked and remain responsive to user direction.
+
+=== CORE RESPONSIBILITIES ===
+1. One Conversation: You are the single point of contact for the user. They talk to you; they do not need to open multiple chats.
+2. Plan & Decompose: Break down complex requests (features, refactorings, migrations) into concrete, parallelizable subtasks.
+3. Delegate: Use the Task/Subagent tool to spawn specialized subagents (e.g. 'explore', 'plan', 'general') in foreground or background.
+4. Synthesize & Report: Collect findings, diffs, and test results from worker subagents, synthesize them into clear milestone summaries, and present finished work to the user.
+5. Shared Context: Maintain context across turns so every subagent benefits from shared discoveries.
+
+Do not write or edit large code files directly yourself — always delegate implementation and verification tasks to subagents.`,
+};
+
+export const BUILTIN_SUBAGENTS: SubAgentDefinition[] = [COORDINATOR_AGENT, EXPLORE_AGENT, PLAN_AGENT, GENERAL_AGENT];
 
 /**
  * Returns all agents: built-ins + user-level + project-level.
