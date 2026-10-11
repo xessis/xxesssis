@@ -25,6 +25,7 @@ jobs:
     env:
       npm_config_msvs_version: "2022"
       GYP_MSVS_VERSION: "2022"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -61,6 +62,8 @@ jobs:
           cargo test --all --manifest-path src-rust/Cargo.toml
 
       - name: Install Node dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm ci
 
       - name: Build React UI
