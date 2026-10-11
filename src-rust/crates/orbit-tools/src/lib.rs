@@ -6,12 +6,29 @@ pub mod security;
 pub use file_ops::{atomic_write_file, read_file_lines, FileReadOutput};
 pub use glob::glob_files;
 pub use search::{search_workspace, GrepMatch, GrepResult};
-pub use security::{assert_no_traversal, is_inside_workspace, is_sensitive_path};
+pub use security::{
+    assert_no_traversal, extract_shell_executables, is_dangerous_shell_command,
+    is_inside_workspace, is_sensitive_path,
+};
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
+
+    #[test]
+    fn test_extract_shell_executables() {
+        let cmd = "export FOO=1 && git status | grep 'modified' ; cargo test";
+        let execs = extract_shell_executables(cmd);
+        assert_eq!(execs, vec!["export", "git", "grep", "cargo"]);
+    }
+
+    #[test]
+    fn test_is_dangerous_shell_command() {
+        assert!(is_dangerous_shell_command("rm -rf /"));
+        assert!(is_dangerous_shell_command("sudo rm -rf /*"));
+        assert!(!is_dangerous_shell_command("cargo build --release"));
+    }
 
     #[test]
     fn test_security_traversal_detection() {

@@ -1,4 +1,5 @@
 pub use orbit_autocomplete as autocomplete;
+pub use orbit_canvas as canvas;
 pub use orbit_cdp as cdp;
 pub use orbit_common as common;
 pub use orbit_diff as diff;
@@ -15,6 +16,11 @@ pub use orbit_runtime as runtime;
 pub use orbit_shadow as shadow;
 pub use orbit_tools as tools;
 pub use orbit_worktree as worktree;
+
+pub use orbit_canvas::{
+    CanvasDimensions, CanvasEdge, CanvasNode, CanvasNodeKind, CanvasNodeStatus, CanvasPosition,
+    CanvasSession, EdgeStyle, TodoItem,
+};
 
 pub use orbit_autocomplete::{AutocompleteEngine, FimFormat, FimPrompt};
 pub use orbit_cdp::security::{is_cdp_method_allowed, is_navigable_url};
@@ -441,5 +447,15 @@ mod tests {
         });
         let res = engine.dispatch("chunk_text", chunk_json).unwrap();
         assert!(!res.as_array().unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_bridge_canvas_integration() {
+        let mut session = CanvasSession::new();
+        let a = session.add_node(CanvasNode::new("Agent Node", CanvasNodeKind::Agent));
+        let t = session.add_node(CanvasNode::new("Task Node", CanvasNodeKind::Task));
+        session.connect(a, t);
+        session.compute_dag_layout(50.0, 30.0);
+        assert!(session.nodes[&a].position.x < session.nodes[&t].position.x);
     }
 }

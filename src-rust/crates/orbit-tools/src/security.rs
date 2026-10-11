@@ -114,3 +114,59 @@ pub fn is_sensitive_path(path: impl AsRef<Path>) -> bool {
 
     false
 }
+
+/// Parses a complex shell pipeline/chain into individual executable commands,
+/// matching Cursor's AST command validation approach.
+pub fn extract_shell_executables(command: &str) -> Vec<String> {
+    let mut executables = Vec::new();
+
+    // Split on chain operators: &&, ||, |, ;
+    let raw_parts = command.split([';', '|', '&', '\n']);
+    for part in raw_parts {
+        let trimmed = part.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+
+        // Handle variable assignments prefix like FOO=1 bar arg
+        let tokens: Vec<&str> = trimmed.split_whitespace().collect();
+        for token in tokens {
+            if token.contains('=') && !token.starts_with('-') {
+                continue;
+            }
+
+            // Clean leading quotes, parenthesis
+            let clean = token
+                .trim_start_matches(['(', '"', '\'', '`'])
+                .trim_end_matches([')', '"', '\'', '`']);
+
+            if !clean.is_empty() {
+                executables.push(clean.to_string());
+                break;
+            }
+        }
+    }
+
+    executables
+}
+
+/// Validates whether a command pipeline contains dangerous system destruction patterns
+pub fn is_dangerous_shell_command(command: &str) -> bool {
+    let lower = command.to_lowercase();
+    let dangerous_patterns = [
+        "rm -rf /",
+        "rm -rf /*",
+        "mkfs.",
+        ":(){ :|:& };:",
+        "dd if=/dev/zero",
+        "> /dev/sda",
+        "chmod -r 777 /",
+    ];
+
+    for pattern in dangerous_patterns {
+        if lower.contains(pattern) {
+            return true;
+        }
+    }
+    false
+}

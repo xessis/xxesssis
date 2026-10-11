@@ -536,6 +536,7 @@ name = "orbit-bridge"
 version = "0.1.0"
 dependencies = [
  "orbit-autocomplete",
+ "orbit-canvas",
  "orbit-cdp",
  "orbit-common",
  "orbit-diff",
@@ -556,6 +557,17 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
+]
+
+[[package]]
+name = "orbit-canvas"
+version = "0.1.0"
+dependencies = [
+ "orbit-common",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
 ]
 
 [[package]]
