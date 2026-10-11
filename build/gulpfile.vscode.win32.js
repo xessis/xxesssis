@@ -131,7 +131,12 @@ function buildWin32Setup(arch, target) {
  */
 function defineWin32SetupTasks(arch, target) {
 	const cleanTask = util.rimraf(setupDir(arch, target));
-	gulp.task(task.define(`vscode-win32-${arch}-${target}-setup`, task.series(cleanTask, buildWin32Setup(arch, target))));
+	gulp.task(task.define(`vscode-win32-${arch}-${target}-setup`, task.series(
+		cleanTask,
+		copyInnoUpdater(arch),
+		updateIcon(path.join(buildPath(arch), 'tools', 'inno_updater.exe')),
+		buildWin32Setup(arch, target)
+	)));
 }
 
 defineWin32SetupTasks('x64', 'system');
