@@ -7,6 +7,7 @@ pub use orbit_git as git;
 pub use orbit_llm as llm;
 pub use orbit_mcp as mcp;
 pub use orbit_models as models;
+pub use orbit_projects as projects;
 pub use orbit_prompts as prompts;
 pub use orbit_providers as providers;
 pub use orbit_retrieval as retrieval;
@@ -16,6 +17,8 @@ pub use orbit_runtime as runtime;
 pub use orbit_shadow as shadow;
 pub use orbit_tools as tools;
 pub use orbit_worktree as worktree;
+
+pub use orbit_projects::{OrbitProject, ProjectKnowledgeItem, ProjectStore};
 
 pub use orbit_canvas::{
     CanvasDimensions, CanvasEdge, CanvasNode, CanvasNodeKind, CanvasNodeStatus, CanvasPosition,
@@ -457,5 +460,19 @@ mod tests {
         session.connect(a, t);
         session.compute_dag_layout(50.0, 30.0);
         assert!(session.nodes[&a].position.x < session.nodes[&t].position.x);
+    }
+
+    #[test]
+    fn test_bridge_projects_integration() {
+        let mut store = ProjectStore::new();
+        let mut p = OrbitProject::new("Web Project", "Frontend architecture");
+        p.add_knowledge(ProjectKnowledgeItem::new("schema.json", "Schema", "{}"));
+        let id = store.add_project(p);
+        assert_eq!(store.get_active_project().unwrap().id, id);
+        assert!(store
+            .get_active_project()
+            .unwrap()
+            .format_prompt_context()
+            .contains("<project_name>Web Project</project_name>"));
     }
 }

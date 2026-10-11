@@ -19,6 +19,7 @@ members = [
     "crates/orbit-worktree",
     "crates/orbit-shadow",
     "crates/orbit-canvas",
+    "crates/orbit-projects",
 ]
 resolver = "2"
 
@@ -64,3 +65,4 @@ orbit-retrieval = { path = "crates/orbit-retrieval" }
 orbit-worktree = { path = "crates/orbit-worktree" }
 orbit-shadow = { path = "crates/orbit-shadow" }
 orbit-canvas = { path = "crates/orbit-canvas" }
+orbit-projects = { path = "crates/orbit-projects" }

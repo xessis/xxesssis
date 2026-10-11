@@ -544,6 +544,7 @@ dependencies = [
  "orbit-llm",
  "orbit-mcp",
  "orbit-models",
+ "orbit-projects",
  "orbit-prompts",
  "orbit-providers",
  "orbit-retrieval",
@@ -648,6 +649,17 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+]
+
+[[package]]
+name = "orbit-projects"
+version = "0.1.0"
+dependencies = [
+ "orbit-common",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
 ]
 
 [[package]]

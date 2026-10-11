@@ -23,6 +23,7 @@ orbit-retrieval = { workspace = true }
 orbit-worktree = { workspace = true }
 orbit-shadow = { workspace = true }
 orbit-canvas = { workspace = true }
+orbit-projects = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
