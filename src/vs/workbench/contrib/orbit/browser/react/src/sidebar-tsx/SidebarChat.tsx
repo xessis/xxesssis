@@ -1287,6 +1287,26 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 				/>
 			)}
 			{inputChatArea}
+			<div className="flex items-center gap-2 mt-2 px-1">
+				<button
+					type="button"
+					className="cursor-action-chip"
+					onClick={() => {
+						voidSettingsService.setGlobalSetting('chatMode', 'plan');
+					}}
+				>
+					Plan New Idea <span className="opacity-60 text-[10px]">⇧Tab</span>
+				</button>
+				<button
+					type="button"
+					className="cursor-action-chip"
+					onClick={() => {
+						voidSettingsService.setGlobalSetting('chatMode', 'agent');
+					}}
+				>
+					Multitask
+				</button>
+			</div>
 		</div>
 	</div>
 

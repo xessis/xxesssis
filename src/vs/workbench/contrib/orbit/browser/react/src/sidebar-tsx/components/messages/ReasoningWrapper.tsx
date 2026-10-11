@@ -100,13 +100,13 @@ export const ReasoningWrapper = ({
 	};
 
 	const label = isActivelyThinking
-		? 'Thinking'
+		? 'Thinking...'
 		: durationSeconds !== null
-			? `Thought for ${formatThoughtDuration(durationSeconds)}`
+			? `Thought ${formatThoughtDuration(durationSeconds)}`
 			: 'Thought';
 
 	return (
-		<div className="my-1">
+		<div className="my-1.5">
 			<button
 				type="button"
 				onClick={toggleOpen}
@@ -114,19 +114,20 @@ export const ReasoningWrapper = ({
 				aria-expanded={isOpen}
 				aria-controls="reasoning-content"
 				className={`
-					group flex items-center gap-1.5 w-full
-					bg-transparent border-none p-0 py-0.5
+					group inline-flex items-center gap-1.5
+					px-2 py-0.5 rounded-md
+					bg-void-bg-1/40 hover:bg-void-bg-1
+					border border-void-border-3/40 hover:border-void-border-2/60
 					cursor-pointer select-none
-					text-void-fg-4 text-[12px]
-					opacity-70 hover:opacity-100
-					transition-opacity duration-150 ease-out
+					text-void-fg-3 hover:text-void-fg-1 text-[12px]
+					transition-all duration-150 ease-out shadow-xs
 				`}
 			>
 				<ChevronRight
-					size={11}
-					strokeWidth={2.5}
+					size={12}
+					strokeWidth={2.2}
 					className={`
-						flex-shrink-0 text-void-fg-4/50
+						flex-shrink-0 text-void-fg-3/70 group-hover:text-void-fg-1
 						transition-transform duration-200 ease-out
 						${isOpen ? 'rotate-90' : 'rotate-0'}
 					`}
