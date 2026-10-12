@@ -668,48 +668,26 @@ const ChatHistoryHeader = ({
 				<span className="flex-1 text-left">Customize</span>
 			</button>
 
-			{/* Projects Section */}
-			<div className="mt-2 pt-2 border-t border-[#252525]">
-				<div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-					<span>Projects</span>
-					<button
-						type="button"
-						className="p-0.5 hover:text-white rounded hover:bg-white/10"
-						title="New Project"
-						onClick={handleNewProject}
-					>
-						<Plus size={12} />
-					</button>
-				</div>
-				<button
-					type="button"
-					onClick={handleNewProject}
-					className="w-full py-1 px-2 rounded-md hover:bg-white/5 text-[12px] text-zinc-400 hover:text-white transition-colors flex items-center gap-2"
-				>
-					<Plus size={12} className="text-zinc-500" />
-					<span className="flex-1 text-left">New Project</span>
-				</button>
-			</div>
-
 			{/* Repositories Section */}
 			<div className="mt-2 pt-2 border-t border-[#252525]">
-				<div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+				<div className="flex items-center justify-between px-2 py-1 text-[12px] font-medium text-zinc-300">
 					<span>Repositories</span>
 					<div className="flex items-center gap-1">
 						<button
 							type="button"
-							className="p-0.5 hover:text-white rounded hover:bg-white/10"
-							title="Filter repositories"
+							className="p-1 hover:text-white rounded hover:bg-white/10 text-zinc-400 cursor-pointer"
+							title="Customize Sidebar"
+							onClick={handleCustomize}
 						>
-							<ListFilter size={12} />
+							<SlidersHorizontal size={13} />
 						</button>
 						<button
 							type="button"
-							className="p-0.5 hover:text-white rounded hover:bg-white/10"
-							title="Add repository"
+							className="p-1 hover:text-white rounded hover:bg-white/10 text-zinc-400 cursor-pointer"
+							title="Open Workspace"
 							onClick={handleNewProject}
 						>
-							<FolderPlus size={12} />
+							<FolderPlus size={13} />
 						</button>
 					</div>
 				</div>
