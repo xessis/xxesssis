@@ -33,6 +33,7 @@ import { IKeybindingService } from '../../../../platform/keybinding/common/keybi
 import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
 import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { mountSidebar } from './react/out/sidebar-tsx/index.js';
 
 import { Codicon } from '../../../../base/common/codicons.js';
 import { Orientation } from '../../../../base/browser/ui/sash/sash.js';
@@ -77,10 +78,9 @@ class SidebarViewPane extends ViewPane {
 		parent.style.userSelect = 'text'
 
 		// gets set immediately
-		this.instantiationService.invokeFunction(async accessor => {
+		this.instantiationService.invokeFunction(accessor => {
 			// mount react
-			const { mountSidebar: mountSidebarDynamic } = await import('./react/out/sidebar-tsx/index.js');
-			const disposeFn: (() => void) | undefined = mountSidebarDynamic(parent, accessor)?.dispose;
+			const disposeFn: (() => void) | undefined = mountSidebar(parent, accessor)?.dispose;
 			this._register(toDisposable(() => disposeFn?.()))
 		});
 	}

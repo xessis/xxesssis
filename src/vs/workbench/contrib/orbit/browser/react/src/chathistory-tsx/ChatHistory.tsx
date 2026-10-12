@@ -619,13 +619,13 @@ const ChatHistoryHeader = ({
 			<button
 				type="button"
 				onClick={onNewThread}
-				className="w-full py-1.5 px-2.5 rounded-lg bg-[#222222] hover:bg-[#2a2a2a] text-[13px] text-white transition-colors flex items-center justify-between border border-[#303030] shadow-sm mb-1"
+				className="w-full py-1.5 px-2.5 rounded-lg bg-[#222222] hover:bg-[#2a2a2a] text-[13px] text-white transition-colors flex items-center justify-between border border-[#303030] shadow-sm mb-1 whitespace-nowrap"
 			>
-				<div className="flex items-center gap-2 font-medium">
-					<Plus size={14} className="stroke-[2.2]" />
-					<span>New Chat</span>
+				<div className="flex items-center gap-2 font-medium whitespace-nowrap shrink-0">
+					<Plus size={14} className="stroke-[2.2] shrink-0" />
+					<span className="whitespace-nowrap">New Chat</span>
 				</div>
-				<span className="px-1.5 py-0.5 rounded bg-[#181818] text-zinc-400 border border-[#333333] text-[10px] font-mono">
+				<span className="px-1.5 py-0.5 rounded bg-[#181818] text-zinc-400 border border-[#333333] text-[10px] font-mono shrink-0">
 					{newThreadKeybindLabel}
 				</span>
 			</button>

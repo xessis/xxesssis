@@ -1315,11 +1315,13 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 
 	const landingPageContent = <div
 		ref={sidebarRef}
-		className='w-full h-full max-h-full flex flex-col overflow-auto px-4'
+		className='w-full h-full max-h-full flex flex-col justify-between overflow-auto px-4'
 	>
-		<ErrorBoundary>
-			{landingPageInput}
-		</ErrorBoundary>
+		<div className="my-auto w-full max-w-[640px] mx-auto flex flex-col">
+			<ErrorBoundary>
+				{landingPageInput}
+			</ErrorBoundary>
+		</div>
 
 		{!isClaudeImportDismissed && (
 			<div

@@ -30,6 +30,13 @@ export const OrbitUserProfileFooter = () => {
 	const notificationService = accessor.get('INotificationService')
 	const { usage, isLoadingUsage } = useOrbitProviderUsage()
 	const [updateChecking, setUpdateChecking] = useState(false)
+	const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(() => {
+		try {
+			return localStorage.getItem('orbit.dismissOnboarding') === 'true'
+		} catch {
+			return false
+		}
+	})
 
 	// Display name matching Cursor screenshot (Peem / ภีม or login)
 	const displayName = orbitAuth.login
@@ -77,52 +84,58 @@ export const OrbitUserProfileFooter = () => {
 	return (
 		<div className="cursor-sidebar-footer flex flex-col shrink-0 border-t border-[#252525] p-2 bg-[#141414]">
 			{/* Onboarding Widget: Getting Started 2/3 + Circular Ring + Connect Slack */}
-			<div className="cursor-onboarding-widget rounded-lg bg-[#1a1a1a] border border-[#282828] p-2.5 mb-2">
-				<div className="flex items-center justify-between mb-2">
-					<div className="flex items-center gap-2">
-						{/* Progress ring SVG (~66% / 2/3) */}
-						<div className="relative w-4 h-4 flex items-center justify-center">
-							<svg className="w-4 h-4 -rotate-90" viewBox="0 0 36 36">
-								<path
-									className="text-[#333333]"
-									strokeWidth="4"
-									stroke="currentColor"
-									fill="none"
-									d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-								/>
-								<path
-									className="text-[#10b981]"
-									strokeDasharray="66, 100"
-									strokeWidth="4"
-									strokeLinecap="round"
-									stroke="currentColor"
-									fill="none"
-									d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-								/>
-							</svg>
+			{!isOnboardingDismissed && (
+				<div className="cursor-onboarding-widget rounded-lg bg-[#1a1a1a] border border-[#282828] p-2.5 mb-2">
+					<div className="flex items-center justify-between mb-2">
+						<div className="flex items-center gap-2">
+							{/* Progress ring SVG (~66% / 2/3) */}
+							<div className="relative w-4 h-4 flex items-center justify-center">
+								<svg className="w-4 h-4 -rotate-90" viewBox="0 0 36 36">
+									<path
+										className="text-[#333333]"
+										strokeWidth="4"
+										stroke="currentColor"
+										fill="none"
+										d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+									/>
+									<path
+										className="text-[#10b981]"
+										strokeDasharray="66, 100"
+										strokeWidth="4"
+										strokeLinecap="round"
+										stroke="currentColor"
+										fill="none"
+										d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+									/>
+								</svg>
+							</div>
+							<span className="text-xs font-medium text-white">Getting Started</span>
 						</div>
-						<span className="text-xs font-medium text-white">Getting Started</span>
+						<button
+							type="button"
+							className="text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors bg-transparent border-0 cursor-pointer"
+							onClick={(e) => {
+								e.stopPropagation();
+								setIsOnboardingDismissed(true);
+								try {
+									localStorage.setItem('orbit.dismissOnboarding', 'true');
+								} catch {}
+							}}
+						>
+							Skip step 2 of 3
+						</button>
 					</div>
 					<button
 						type="button"
-						className="text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors bg-transparent border-0 cursor-pointer"
-						onClick={(e) => {
-							e.stopPropagation();
-						}}
+						className="w-full flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-md bg-[#242424] hover:bg-[#2d2d2d] text-xs font-medium text-white transition-colors border border-[#333333] cursor-pointer"
+						onClick={handleConnectSlack}
 					>
-						Skip step 2 of 3
+						{/* Multi-color Slack glyph */}
+						<Slack size={13} className="text-[#e01e5a]" />
+						<span>Connect Slack</span>
 					</button>
 				</div>
-				<button
-					type="button"
-					className="w-full flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-md bg-[#242424] hover:bg-[#2d2d2d] text-xs font-medium text-white transition-colors border border-[#333333] cursor-pointer"
-					onClick={handleConnectSlack}
-				>
-					{/* Multi-color Slack glyph */}
-					<Slack size={13} className="text-[#e01e5a]" />
-					<span>Connect Slack</span>
-				</button>
-			</div>
+			)}
 
 			{/* Account Row: Avatar, Username, Settings Gear Icon */}
 			<div className="flex items-center justify-between gap-2 px-1 py-1">
