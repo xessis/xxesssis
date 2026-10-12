@@ -105,8 +105,13 @@ const vscodeResourceIncludes = [
 	// Tree Sitter injection queries
 	'out-build/vs/editor/common/languages/injections/*.scm',
 
-	// Orbit AI & React UI
+	// Orbit AI & React UI and core VS Code runtime dependencies
 	'out-build/vs/workbench/contrib/orbit/**',
+	'out-build/vs/base/**',
+	'out-build/vs/platform/**',
+	'out-build/vs/editor/**',
+	'out-build/media/**',
+	'out-build/vs/workbench/browser/media/**',
 ];
 
 const vscodeResources = [

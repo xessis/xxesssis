@@ -463,7 +463,7 @@ export const AgentWorkspacePicker = ({ open, onClose, anchorRef }: AgentWorkspac
 				width: pos.width,
 				maxHeight: pos.maxHeight,
 				// Match workbench UI font (portal sits outside .void-scope).
-				fontFamily: 'var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, sans-serif)',
+				fontFamily: 'var(--cursor-font-family-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif)',
 				fontSize: 13,
 			}}
 			onKeyDown={onMenuKeyDown}

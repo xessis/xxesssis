@@ -13,6 +13,29 @@ module.exports = {
 	],
 	theme: {
 		extend: {
+			fontFamily: {
+				sans: [
+					'var(--cursor-font-family-sans)',
+					'-apple-system',
+					'BlinkMacSystemFont',
+					'"Segoe UI"',
+					'Roboto',
+					'Helvetica',
+					'Arial',
+					'sans-serif',
+				],
+				mono: [
+					'var(--cursor-font-family-mono)',
+					'"JetBrains Mono"',
+					'"SF Mono"',
+					'"Fira Code"',
+					'ui-monospace',
+					'Menlo',
+					'Monaco',
+					'Consolas',
+					'monospace',
+				],
+			},
 			typography: theme => ({
 				DEFAULT: {
 					css: {

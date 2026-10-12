@@ -220,7 +220,7 @@ export const AgentChatHistoryFilterMenu = ({
 	const surfaceStyle: React.CSSProperties = {
 		backgroundColor: isDark ? '#252526' : '#ffffff',
 		opacity: 1,
-		fontFamily: 'var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, sans-serif)',
+		fontFamily: 'var(--cursor-font-family-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif)',
 		fontSize: 13,
 	};
 

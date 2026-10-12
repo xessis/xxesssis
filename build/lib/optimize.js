@@ -117,6 +117,9 @@ function bundleESMTask(opts) {
                     build.onResolve({ filter: /^minimist$/ }, () => {
                         return { path: path_1.default.join(REPO_ROOT_PATH, 'node_modules', 'minimist', 'index.js'), external: false };
                     });
+                    build.onResolve({ filter: /react[/\\]out/ }, args => {
+                        return { path: args.path.replace(/\\/g, '/'), external: true };
+                    });
                 },
             };
             const task = esbuild_1.default.build({
@@ -129,6 +132,8 @@ function bundleESMTask(opts) {
                 target: ['es2022'],
                 loader: {
                     '.ttf': 'file',
+                    '.woff': 'file',
+                    '.woff2': 'file',
                     '.svg': 'file',
                     '.png': 'file',
                     '.sh': 'file',
@@ -148,11 +153,16 @@ function bundleESMTask(opts) {
             }).then(res => {
                 for (const file of res.outputFiles) {
                     let sourceMapFile = undefined;
+                    let outContents = file.contents;
                     if (file.path.endsWith('.js')) {
                         sourceMapFile = res.outputFiles.find(f => f.path === `${file.path}.map`);
+                        let text = file.contents.toString('utf-8');
+                        text = text.replace(/from\s+["'](\.[^"']+)["']/g, (m, p) => `from "${p.replace(/\\/g, '/')}"`);
+                        text = text.replace(/import\s*\(\s*["'](\.[^"']+)["']\s*\)/g, (m, p) => `import("${p.replace(/\\/g, '/')}")`);
+                        outContents = Buffer.from(text);
                     }
                     const fileProps = {
-                        contents: Buffer.from(file.contents),
+                        contents: outContents,
                         sourceMap: sourceMapFile ? JSON.parse(sourceMapFile.text) : undefined, // support gulp-sourcemaps
                         path: file.path,
                         base: path_1.default.join(REPO_ROOT_PATH, opts.src)
@@ -205,7 +215,10 @@ function minifyTask(src, sourceMapBaseUrl) {
             }).then(res => {
                 const jsFile = res.outputFiles.find(f => /\.js$/.test(f.path));
                 const sourceMapFile = res.outputFiles.find(f => /\.js\.map$/.test(f.path));
-                const contents = Buffer.from(jsFile.contents);
+                let text = jsFile.contents.toString('utf-8');
+                text = text.replace(/from\s+["'](\.[^"']+)["']/g, (m, p) => `from "${p.replace(/\\/g, '/')}"`);
+                text = text.replace(/import\s*\(\s*["'](\.[^"']+)["']\s*\)/g, (m, p) => `import("${p.replace(/\\/g, '/')}")`);
+                const contents = Buffer.from(text);
                 const unicodeMatch = contents.toString().match(/[^\x00-\xFF]+/g);
                 if (unicodeMatch) {
                     cb(new Error(`Found non-ascii character ${unicodeMatch[0]} in the minified output of ${f.path}. Non-ASCII characters in the output can cause performance problems when loading. Please review if you have introduced a regular expression that esbuild is not automatically converting and convert it to using unicode escape sequences.`));
