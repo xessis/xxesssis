@@ -3,8 +3,8 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------*/
 
-import React, { useState } from 'react'
-import { Settings2, Slack } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Settings2, Slack, User } from 'lucide-react'
 import { useAccessor, useOrbitProviderAuthState } from '../util/services.js'
 import { useOrbitProviderUsage } from '../util/useOrbitProviderUsage.js'
 import {
@@ -12,15 +12,18 @@ import {
 	VOID_ORBIT_PROVIDER_SIGN_IN_ACTION_ID,
 } from '../../../actionIDs.js'
 import { formatOrbitPlanName, formatOrbitWalletBalance } from '../../../../common/orbitProviderUsage.js'
+import { StorageScope, StorageTarget } from '../../../../../../../platform/storage/common/storage.js'
+
+const ONBOARDING_DISMISS_KEY = 'orbit.dismissOnboarding'
 
 function getProfileInitials(login?: string, email?: string): string {
-	const source = (login ?? email ?? 'ภีม').replace(/^@/, '').trim()
-	if (!source) return 'ภี'
+	const source = (login ?? email ?? '').replace(/^@/, '').trim()
+	if (!source) return '?'
 	const parts = source.split(/[\s._-]+/).filter(Boolean)
 	if (parts.length >= 2) {
 		return `${parts[0]![0] ?? ''}${parts[1]![0] ?? ''}`.toUpperCase()
 	}
-	return source.slice(0, 2)
+	return source.slice(0, 2).toUpperCase()
 }
 
 export const OrbitUserProfileFooter = () => {
@@ -28,20 +31,21 @@ export const OrbitUserProfileFooter = () => {
 	const accessor = useAccessor()
 	const commandService = accessor.get('ICommandService')
 	const notificationService = accessor.get('INotificationService')
+	const storageService = accessor.get('IStorageService')
 	const { usage, isLoadingUsage } = useOrbitProviderUsage()
 	const [updateChecking, setUpdateChecking] = useState(false)
 	const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(() => {
 		try {
-			return localStorage.getItem('orbit.dismissOnboarding') === 'true'
+			return storageService?.getBoolean(ONBOARDING_DISMISS_KEY, StorageScope.APPLICATION, false) ?? false
 		} catch {
 			return false
 		}
 	})
 
-	// Display name matching Cursor screenshot (Peem / ภีม or login)
+	const isLoggedIn = !!orbitAuth.isAuthenticated
 	const displayName = orbitAuth.login
 		? orbitAuth.login
-		: orbitAuth.email?.split('@')[0] ?? 'ภีม'
+		: orbitAuth.email?.split('@')[0] ?? (isLoggedIn ? 'User' : 'Sign In')
 
 	const planLabel = formatOrbitPlanName(usage?.plan ?? orbitAuth.plan ?? 'free')
 	const balanceLabel = usage
@@ -51,7 +55,11 @@ export const OrbitUserProfileFooter = () => {
 			: ''
 
 	const openAccount = () => {
-		void commandService.executeCommand(VOID_OPEN_ACCOUNT_SETTINGS_ACTION_ID)
+		if (isLoggedIn) {
+			void commandService.executeCommand(VOID_OPEN_ACCOUNT_SETTINGS_ACTION_ID)
+		} else {
+			void commandService.executeCommand(VOID_ORBIT_PROVIDER_SIGN_IN_ACTION_ID)
+		}
 	}
 
 	const openSettings = (e: React.MouseEvent) => {
@@ -118,7 +126,7 @@ export const OrbitUserProfileFooter = () => {
 								e.stopPropagation();
 								setIsOnboardingDismissed(true);
 								try {
-									localStorage.setItem('orbit.dismissOnboarding', 'true');
+									storageService?.store(ONBOARDING_DISMISS_KEY, true, StorageScope.APPLICATION, StorageTarget.USER);
 								} catch {}
 							}}
 						>
@@ -143,7 +151,7 @@ export const OrbitUserProfileFooter = () => {
 					type="button"
 					className="flex items-center gap-2 min-w-0 flex-1 text-left bg-transparent border-0 p-0 cursor-pointer hover:opacity-90 transition-opacity"
 					onClick={openAccount}
-					title={orbitAuth.isAuthenticated ? `${displayName} (${planLabel} plan)` : displayName}
+					title={isLoggedIn ? `${displayName} (${planLabel} plan)` : 'Sign in to Orbit'}
 				>
 					{orbitAuth.avatarUrl ? (
 						<img
@@ -153,10 +161,10 @@ export const OrbitUserProfileFooter = () => {
 						/>
 					) : (
 						<span
-							className="w-6 h-6 rounded-full bg-[#7c3aed] text-white text-[11px] font-semibold flex items-center justify-center shrink-0"
+							className={`w-6 h-6 rounded-full ${isLoggedIn ? 'bg-[#7c3aed]' : 'bg-[#2a2a2a] border border-[#3a3a3a]'} text-white text-[11px] font-semibold flex items-center justify-center shrink-0`}
 							aria-hidden="true"
 						>
-							{getProfileInitials(orbitAuth.login, orbitAuth.email)[0] ?? 'P'}
+							{isLoggedIn ? (getProfileInitials(orbitAuth.login, orbitAuth.email)[0] ?? 'U') : <User size={12} className="text-zinc-400" />}
 						</span>
 					)}
 					<div className="flex flex-col min-w-0 flex-1">

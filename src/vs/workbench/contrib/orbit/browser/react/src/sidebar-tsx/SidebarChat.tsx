@@ -186,6 +186,7 @@ const SidebarChatLoaded = ({ isAgentWindow = false, currentThread, chatSurface, 
 	const commandService = accessor.get('ICommandService')
 	const agentWindowService = accessor.get('IAgentWindowService')
 	const chatThreadsService = accessor.get('IChatThreadService')
+	const storageService = accessor.get('IStorageService')
 
 	const settingsState = useSettingsState()
 	const mcpServiceState = useMCPServiceState()
@@ -225,7 +226,7 @@ const SidebarChatLoaded = ({ isAgentWindow = false, currentThread, chatSurface, 
 	const initVal = initialDraftText ?? ''
 	const [isClaudeImportDismissed, setIsClaudeImportDismissed] = useState(() => {
 		try {
-			return localStorage.getItem('orbit.dismissClaudeCodeImport') === 'true'
+			return storageService?.getBoolean('orbit.dismissClaudeCodeImport', StorageScope.APPLICATION, false) ?? false
 		} catch {
 			return false
 		}
@@ -1348,7 +1349,7 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 						e.stopPropagation()
 						setIsClaudeImportDismissed(true)
 						try {
-							localStorage.setItem('orbit.dismissClaudeCodeImport', 'true')
+							storageService?.store('orbit.dismissClaudeCodeImport', true, StorageScope.APPLICATION, StorageTarget.USER)
 						} catch {}
 					}}
 					className="text-zinc-400 hover:text-white text-[11px] px-2.5 py-1 rounded hover:bg-white/10 transition-colors cursor-pointer"
