@@ -3666,3 +3666,33 @@ select:-webkit-autofill:focus {
 	border-color: color-mix(in srgb, var(--vscode-editorWidget-border, #454545) 80%, transparent);
 }
 
+/* Agent Workspace Header (Cursor Parity) */
+.agent-workspace-header {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 8px;
+	padding: 0 4px;
+}
+
+.agent-workspace-header-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 3px 8px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 500;
+	background: color-mix(in srgb, var(--vscode-input-background, #1e1e1e) 70%, transparent);
+	border: 1px solid color-mix(in srgb, var(--vscode-editorWidget-border, #454545) 35%, transparent);
+	color: var(--vscode-foreground, #cccccc);
+	cursor: pointer;
+	transition: all 0.15s ease-out;
+}
+
+.agent-workspace-header-btn:hover {
+	background: color-mix(in srgb, var(--vscode-input-background, #1e1e1e) 90%, transparent);
+	border-color: color-mix(in srgb, var(--vscode-editorWidget-border, #454545) 70%, transparent);
+}
+
+

@@ -173,24 +173,41 @@ export class EditorGroupWatermark extends Disposable {
 
 				const welcomePanel = append(voidIconBox, $('.void-welcome-panel'));
 
-				// Action cards
+				// Action cards (Cursor 1:1 parity)
 				const actionCards = append(welcomePanel, $('.void-action-cards'));
 
 				const openFolderCard = append(actionCards, $('button.void-action-card.void-action-card--primary'));
 				openFolderCard.setAttribute('type', 'button');
 				append(openFolderCard, $('span.void-action-card-icon.codicon.codicon-folder-opened'));
 				append(openFolderCard, $('span.void-action-card-label')).textContent =
-					localize('watermark.openFolder', "Open Folder");
+					localize('watermark.openProject', "Open project");
 				openFolderCard.onclick = () => {
 					this.commandService.executeCommand(isMacintosh && isNative ? OpenFileFolderAction.ID : OpenFolderAction.ID);
+				};
+
+				const cloneRepoCard = append(actionCards, $('button.void-action-card'));
+				cloneRepoCard.setAttribute('type', 'button');
+				append(cloneRepoCard, $('span.void-action-card-icon.codicon.codicon-source-control'));
+				append(cloneRepoCard, $('span.void-action-card-label')).textContent =
+					localize('watermark.cloneRepo', "Clone repo");
+				cloneRepoCard.onclick = () => {
+					this.commandService.executeCommand('git.clone');
 				};
 
 				const openSSHCard = append(actionCards, $('button.void-action-card'));
 				openSSHCard.setAttribute('type', 'button');
 				append(openSSHCard, $('span.void-action-card-icon.codicon.codicon-remote'));
-				append(openSSHCard, $('span.void-action-card-label')).textContent = 'Open SSH';
+				append(openSSHCard, $('span.void-action-card-label')).textContent = 'Connect via SSH';
 				openSSHCard.onclick = () => {
 					this.viewsService.openViewContainer(REMOTE_EXPLORER_VIEWLET_ID);
+				};
+
+				const steerMobileCard = append(actionCards, $('button.void-action-card'));
+				steerMobileCard.setAttribute('type', 'button');
+				append(steerMobileCard, $('span.void-action-card-icon.codicon.codicon-device-mobile'));
+				append(steerMobileCard, $('span.void-action-card-label')).textContent = 'Steer from Mobile';
+				steerMobileCard.onclick = () => {
+					this.commandService.executeCommand('workbench.action.openVoidSettings');
 				};
 
 				// Recent projects

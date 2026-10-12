@@ -1111,13 +1111,9 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 
 	const isLandingPage = previousMessages.length === 0
 
-	const executionTargetHeader = isSideChat ? null : inAgentWindow ? (
+	const executionTargetHeader = isSideChat ? null : (
 		<ErrorBoundary>
 			<AgentWorkspaceHeader />
-		</ErrorBoundary>
-	) : (
-		<ErrorBoundary>
-			<AgentChatRunHeader isAgentWindow={false} />
 		</ErrorBoundary>
 	)
 

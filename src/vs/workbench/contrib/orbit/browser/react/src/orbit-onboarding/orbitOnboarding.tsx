@@ -13,7 +13,7 @@ import { isLinux } from '../../../../../../../base/common/platform.js';
 import { VOID_OPENAI_CODEX_SIGN_IN_ACTION_ID, VOID_ORBIT_PROVIDER_SIGN_IN_ACTION_ID, VOID_XAI_GROK_SIGN_IN_ACTION_ID } from '../../../actionIDs.js';
 import { VOID_OPEN_SETTINGS_ACTION_ID } from '../../../orbitSettingsPane.js';
 
-const OVERRIDE_VALUE = false
+const OVERRIDE_VALUE = true
 
 export const VoidOnboarding = () => {
 	const accessor = useAccessor()

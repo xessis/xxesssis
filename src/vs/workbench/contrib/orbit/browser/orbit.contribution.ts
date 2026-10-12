@@ -99,6 +99,9 @@ import './agentGitService.js'
 // register native notifications
 import './nativeNotificationService.js'
 
+// register status bar items (Cursor Parity)
+import './orbitStatusbar.js'
+
 // register Plan Editor custom editor
 import './planEditorInput.js'
 import './planEditorPane.js'
