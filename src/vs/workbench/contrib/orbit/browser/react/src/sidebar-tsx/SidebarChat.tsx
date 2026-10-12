@@ -223,6 +223,13 @@ const SidebarChatLoaded = ({ isAgentWindow = false, currentThread, chatSurface, 
 
 	// state of current message
 	const initVal = initialDraftText ?? ''
+	const [isClaudeImportDismissed, setIsClaudeImportDismissed] = useState(() => {
+		try {
+			return localStorage.getItem('orbit.dismissClaudeCodeImport') === 'true'
+		} catch {
+			return false
+		}
+	})
 	const [instructionsAreEmpty, setInstructionsAreEmpty] = useState(!initVal)
 	const [textQuotes, setTextQuotes] = useState<TextQuoteAttachment[]>(() => initialTextQuotes?.map(quote => ({ ...quote })) ?? [])
 	const onTextQuotesChangeRef = useRef(onTextQuotesChange)
@@ -1314,23 +1321,40 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 			{landingPageInput}
 		</ErrorBoundary>
 
-		<div className="mt-auto mb-6 flex items-center justify-between p-3 rounded-xl bg-[#1e1e1e] border border-[#2e2e2e] text-xs max-w-[540px] mx-auto w-full">
-			<div className="flex items-center gap-3">
-				<div className="w-7 h-7 rounded-lg bg-[#d97706]/15 flex items-center justify-center text-[#d97706] font-semibold shrink-0">
-					C
-				</div>
-				<div className="flex flex-col">
-					<span className="font-medium text-white text-xs">Import your Claude Code conversations</span>
-					<span className="text-zinc-400 text-[11px]">Sync your chats and continue them in Orbit</span>
-				</div>
-			</div>
-			<button
-				type="button"
-				className="text-zinc-400 hover:text-white text-[11px] px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-pointer"
+		{!isClaudeImportDismissed && (
+			<div
+				onClick={() => {
+					try {
+						const notificationService = accessor.get('INotificationService')
+						notificationService?.info('Scanning for Claude Code conversations in ~/.claude/...')
+					} catch {}
+				}}
+				className="mt-auto mb-6 flex items-center justify-between p-3 rounded-xl bg-[#1e1e1e] hover:bg-[#252525] border border-[#2e2e2e] hover:border-[#3e3e3e] text-xs max-w-[540px] mx-auto w-full transition-all cursor-pointer select-none"
 			>
-				Dismiss
-			</button>
-		</div>
+				<div className="flex items-center gap-3">
+					<div className="w-7 h-7 rounded-lg bg-[#d97706]/15 flex items-center justify-center text-[#d97706] font-semibold shrink-0">
+						C
+					</div>
+					<div className="flex flex-col">
+						<span className="font-medium text-white text-xs">Import your Claude Code conversations</span>
+						<span className="text-zinc-400 text-[11px]">Sync your chats and continue them in Orbit</span>
+					</div>
+				</div>
+				<button
+					type="button"
+					onClick={(e) => {
+						e.stopPropagation()
+						setIsClaudeImportDismissed(true)
+						try {
+							localStorage.setItem('orbit.dismissClaudeCodeImport', 'true')
+						} catch {}
+					}}
+					className="text-zinc-400 hover:text-white text-[11px] px-2.5 py-1 rounded hover:bg-white/10 transition-colors cursor-pointer"
+				>
+					Dismiss
+				</button>
+			</div>
+		)}
 	</div>
 
 
