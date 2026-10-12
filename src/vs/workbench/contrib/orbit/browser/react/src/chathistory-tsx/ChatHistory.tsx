@@ -580,7 +580,7 @@ const ChatHistoryHeader = ({
 	const agentWorkspaceState = useAgentWorkspaceState();
 	const fileDialogService = accessor.get('IFileDialogService');
 
-	const newThreadKeybindLabel = keybindingService.lookupKeybinding('void.cmdShiftL')?.getLabel() || 'Ctrl+N';
+	const newThreadKeybindLabel = isMac ? '⌘N' : 'Ctrl+N';
 
 	const handleCustomize = () => {
 		try { commandService.executeCommand('workbench.action.openVoidCustomize'); }
@@ -631,8 +631,8 @@ const ChatHistoryHeader = ({
 			</button>
 
 			{/* Search Row with Ctrl+K */}
-			<div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-[#1a1a1a] border border-[#262626] mb-1">
-				<Search size={13} className="shrink-0 text-zinc-400" />
+			<div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-[#1e1e1e] border border-[#2a2a2a] mb-1">
+				<Search size={14} className="shrink-0 text-zinc-400" />
 				<input
 					type="text"
 					placeholder="Search"
@@ -643,7 +643,7 @@ const ChatHistoryHeader = ({
 					aria-label="Search agents"
 					className="flex-1 bg-transparent outline-none text-[13px] text-zinc-200 placeholder:text-zinc-500"
 				/>
-				<span className="px-1 rounded bg-[#242424] text-zinc-400 text-[10px] font-mono border border-[#333333]">
+				<span className="px-1.5 py-0.5 rounded bg-[#181818] text-zinc-400 text-[10px] font-mono border border-[#333333]">
 					Ctrl+K
 				</span>
 			</div>
