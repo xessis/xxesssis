@@ -207,7 +207,8 @@ registerAction2(class extends Action2 {
 			id: VOID_CMD_SHIFT_L_ACTION_ID,
 			title: 'New Chat',
 			keybinding: {
-				primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyL,
+				primary: KeyMod.CtrlCmd | KeyCode.KeyN,
+				secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyL],
 				weight: KeybindingWeight.VoidExtension,
 			},
 			icon: { id: 'add' },
