@@ -1316,7 +1316,7 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 
 	const landingPageContent = <div
 		ref={sidebarRef}
-		className='w-full h-full max-h-full flex flex-col justify-between overflow-auto px-4'
+		className={`w-full h-full max-h-full flex flex-col justify-between overflow-auto px-4 ${inAgentWindow ? 'max-w-[820px] mx-auto' : ''}`}
 	>
 		<div className="my-auto w-full max-w-[640px] mx-auto flex flex-col">
 			<ErrorBoundary>
@@ -1376,7 +1376,7 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 	// </div>
 	const threadPageContent = <div
 		ref={sidebarRef}
-		className='w-full h-full flex flex-col overflow-hidden'
+		className={`w-full h-full flex flex-col overflow-hidden ${inAgentWindow ? 'max-w-[820px] mx-auto' : ''}`}
 	>
 		<ErrorBoundary>
 			{messagesHTML}

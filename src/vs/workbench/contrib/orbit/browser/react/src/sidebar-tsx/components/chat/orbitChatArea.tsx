@@ -148,28 +148,9 @@ export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 						<Plus size={13} className="stroke-[2.2]" />
 					</button>
 
-					{featureName === 'Chat' && (
-						<ChatModeDropdown
-							className="
-								flex items-center gap-1
-								px-2 py-0.5
-								rounded-full
-								bg-[var(--void-pill-card-bg)]
-								text-[var(--void-fg-2)]
-								text-xs
-								cursor-pointer select-none
-								hover:bg-[var(--void-pill-card-bg-hover)]
-								transition-colors
-								min-w-0
-								shrink
-								overflow-hidden whitespace-nowrap text-ellipsis
-							"
-						/>
-					)}
-
-					{/* Model selector badge with Lock icon */}
+					{/* Model selector badge with Lock icon (Cursor 1:1) */}
 					{showModelDropdown && (
-						<div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#1e1e1e] border border-[#2e2e2e] text-xs text-zinc-200">
+						<div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#1e1e1e] hover:bg-[#252525] border border-[#2e2e2e] text-xs text-zinc-200 transition-colors">
 							<Lock size={11} className="text-zinc-400 shrink-0" />
 							<ModelDropdown
 								featureName={featureName}
@@ -181,7 +162,6 @@ export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 
 				{/* Bottom-right: Microphone dictation & Submit button */}
 				<div className="flex items-center gap-1.5 ml-auto shrink-0">
-					{imageButton}
 					{/* Microphone icon button (subtle monoline icon matching Cursor) */}
 					<button
 						type="button"

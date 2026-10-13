@@ -153,7 +153,7 @@ function bundleESMTask(opts) {
             }).then(res => {
                 for (const file of res.outputFiles) {
                     let sourceMapFile = undefined;
-                    let outContents = file.contents;
+                    let outContents = Buffer.from(file.contents);
                     if (file.path.endsWith('.js')) {
                         sourceMapFile = res.outputFiles.find(f => f.path === `${file.path}.map`);
                         let text = file.contents.toString('utf-8');

@@ -150,14 +150,14 @@
 
 /* Sidebar header shares the sidebar surface, so header and list read as one. */
 .agent-window .agent-window-sidebar-header {
-	background: var(--vscode-sideBar-background);
+	background: var(--cursor-chrome, #141414);
 	border-bottom: 1px solid transparent;
 	padding-left: 8px;
 }
-/* Chat header. */
+/* Chat header. Seamless borderless header blending into canvas */
 .agent-window .agent-window-main-header {
-	background: var(--vscode-editor-background);
-	border-bottom: 1px solid var(--vscode-panel-border);
+	background: var(--cursor-editor, #181818);
+	border-bottom: 1px solid transparent;
 	gap: 6px;
 	padding-left: 10px;
 	padding-right: 6px;
@@ -260,27 +260,28 @@
 	opacity: 0.86;
 }
 
-/* --- IDE button --- */
+/* --- IDE button (Cursor 1:1) --- */
 .agent-window .agent-window-ide-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
 	flex: 0 0 auto;
 	height: 24px;
-	padding: 0 10px;
-	border: 1px solid var(--vscode-panel-border);
-	border-radius: 12px;
-	background: transparent;
-	color: var(--vscode-foreground);
-	font-size: 11px;
+	padding: 0 8px;
+	border: 1px solid var(--cursor-stroke-secondary, rgba(240, 240, 240, 0.12));
+	border-radius: 6px;
+	background: var(--cursor-bg-quaternary, rgba(240, 240, 240, 0.06));
+	color: var(--cursor-text-secondary, #cccccc);
+	font-size: 12px;
 	font-weight: 500;
 	cursor: pointer;
-	opacity: 0.82;
-	transition: background-color 100ms ease, border-color 100ms ease, opacity 100ms ease;
+	opacity: 0.9;
+	transition: background-color 100ms ease, border-color 100ms ease, opacity 100ms ease, color 100ms ease;
 }
 .agent-window .agent-window-ide-btn:hover {
-	background: var(--vscode-toolbar-hoverBackground);
-	border-color: var(--vscode-focusBorder);
+	background: var(--cursor-bg-secondary, rgba(240, 240, 240, 0.14));
+	border-color: var(--cursor-stroke-primary, rgba(240, 240, 240, 0.22));
+	color: var(--cursor-text-primary, #ffffff);
 	opacity: 1;
 }
 .agent-window .agent-window-ide-btn:active {
@@ -330,8 +331,8 @@
 	max-width: 460px;
 	height: 100%;
 	overflow: hidden;
-	background: var(--vscode-sideBar-background);
-	border-right: 1px solid var(--vscode-panel-border);
+	background: var(--cursor-chrome, #141414);
+	border-right: 1px solid var(--cursor-stroke-secondary, rgba(240, 240, 240, 0.08));
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
@@ -364,7 +365,7 @@
 	min-width: 0;
 	height: 100%;
 	overflow: hidden;
-	background: var(--vscode-editor-background);
+	background: var(--cursor-editor, #181818);
 	display: flex;
 	flex-direction: column;
 }
@@ -394,19 +395,20 @@
 /* The void-scope wrapper from ChatHistory/Sidebar uses inline style
    width:100%; height:100% — reinforce with flex so inner content
    (flex-col layouts) can compute their heights. */
-.agent-window .agent-window-sidebar-content > .void-scope,
-.agent-window .agent-window-main-content > .void-scope {
+.agent-window .agent-window-sidebar-content .void-scope,
+.agent-window .agent-window-main-content .void-scope {
 	display: flex !important;
 	flex-direction: column !important;
 	overflow: hidden;
 }
 
-/* Center the chat content in a clean, contained column (Cursor-style) instead of
+/* Center the chat content in a clean, contained column (Cursor 1:1) instead of
    letting it stretch the full window width. One rule centers everything —
    messages, composer, and the empty/new-agent state — so the layout stays simple
    and consistent. The vertical scrollbar sits at this column's right edge. */
-.agent-window .agent-window-main-content > .void-scope {
-	max-width: 720px;
+.agent-window .agent-window-main-content .void-scope {
+	max-width: 760px;
+	width: 100%;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -461,8 +463,8 @@
 	max-width: 1000px;
 	height: 100%;
 	overflow: hidden;
-	background: var(--vscode-editor-background);
-	border-left: 1px solid var(--vscode-panel-border);
+	background: var(--cursor-editor, #181818);
+	border-left: 1px solid var(--cursor-stroke-secondary, rgba(240, 240, 240, 0.08));
 	display: flex;
 	flex-direction: column;
 }
