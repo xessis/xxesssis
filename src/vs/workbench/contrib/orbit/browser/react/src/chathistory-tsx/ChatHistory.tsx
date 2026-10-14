@@ -25,6 +25,7 @@ import { AgentWorkspacePicker } from '../agent-window-tsx/AgentWorkspacePicker.j
 import { RunnerThreadCloudIcon } from '../sidebar-tsx/components/runner/RunnerThreadCloudIcon.js';
 import { ThreadStatusIcon } from '../util/ThreadStatusIcon.js';
 import { StorageScope, StorageTarget } from '../../../../../../../platform/storage/common/storage.js';
+import { useAgentWindowNavigation } from '../agent-window-tsx/AgentWindowPortal.js';
 
 export const ChatHistory = ({ className, isAgentWindow = false }: { className?: string; isAgentWindow?: boolean }) => {
 	const isDark = useIsDark();
@@ -579,15 +580,24 @@ const ChatHistoryHeader = ({
 	const workspaceService = accessor.get('IAgentProjectWorkspaceService');
 	const agentWorkspaceState = useAgentWorkspaceState();
 	const fileDialogService = accessor.get('IFileDialogService');
+	const nav = useAgentWindowNavigation();
 
 	const newThreadKeybindLabel = isMac ? '⌘N' : 'Ctrl+N';
 
 	const handleCustomize = () => {
+		if (inAgentWindow && nav?.setCurrentView) {
+			nav.setCurrentView('customize');
+			return;
+		}
 		try { commandService.executeCommand('workbench.action.openVoidCustomize'); }
 		catch (error) { console.error('Error opening Customize:', error); }
 	};
 
 	const handleAutomations = () => {
+		if (inAgentWindow && nav?.setCurrentView) {
+			nav.setCurrentView('automations');
+			return;
+		}
 		try { commandService.executeCommand('workbench.action.openVoidSettings'); }
 		catch (error) { console.error('Error opening Automations:', error); }
 	};
@@ -618,8 +628,13 @@ const ChatHistoryHeader = ({
 			{/* + New Chat Button with Ctrl+N */}
 			<button
 				type="button"
-				onClick={onNewThread}
-				className="w-full py-1.5 px-2.5 rounded-lg bg-[#222222] hover:bg-[#2a2a2a] text-[13px] text-white transition-colors flex items-center justify-between border border-[#303030] shadow-sm mb-1 whitespace-nowrap"
+				onClick={() => {
+					if (inAgentWindow && nav?.setCurrentView) {
+						nav.setCurrentView('chat');
+					}
+					onNewThread();
+				}}
+				className="w-full py-1.5 px-2.5 rounded-lg bg-[#222222] hover:bg-[#2a2a2a] text-[13px] text-white transition-colors flex items-center justify-between border border-[#303030] shadow-sm mb-1 whitespace-nowrap cursor-pointer"
 			>
 				<div className="flex items-center gap-2 font-medium whitespace-nowrap shrink-0">
 					<Plus size={14} className="stroke-[2.2] shrink-0" />
@@ -652,7 +667,7 @@ const ChatHistoryHeader = ({
 			<button
 				type="button"
 				onClick={handleAutomations}
-				className="w-full py-1.5 px-2 rounded-md hover:bg-white/5 text-[13px] text-zinc-300 hover:text-white transition-colors flex items-center gap-2.5"
+				className={`w-full py-1.5 px-2 rounded-md text-[13px] transition-colors flex items-center gap-2.5 cursor-pointer ${nav?.currentView === 'automations' ? 'bg-white/10 text-white font-medium' : 'hover:bg-white/5 text-zinc-300 hover:text-white'}`}
 			>
 				<Bot size={14} className="shrink-0 text-zinc-400" />
 				<span className="flex-1 text-left">Automations</span>
@@ -662,7 +677,7 @@ const ChatHistoryHeader = ({
 			<button
 				type="button"
 				onClick={handleCustomize}
-				className="w-full py-1.5 px-2 rounded-md hover:bg-white/5 text-[13px] text-zinc-300 hover:text-white transition-colors flex items-center gap-2.5"
+				className={`w-full py-1.5 px-2 rounded-md text-[13px] transition-colors flex items-center gap-2.5 cursor-pointer ${nav?.currentView === 'customize' ? 'bg-white/10 text-white font-medium' : 'hover:bg-white/5 text-zinc-300 hover:text-white'}`}
 			>
 				<SlidersHorizontal size={14} className="shrink-0 text-zinc-400" />
 				<span className="flex-1 text-left">Customize</span>

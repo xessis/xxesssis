@@ -13,6 +13,7 @@ import {
 } from '../../../actionIDs.js'
 import { formatOrbitPlanName, formatOrbitWalletBalance } from '../../../../common/orbitProviderUsage.js'
 import { StorageScope, StorageTarget } from '../../../../../../../platform/storage/common/storage.js'
+import { useAgentWindowNavigation } from '../agent-window-tsx/AgentWindowPortal.js'
 
 const ONBOARDING_DISMISS_KEY = 'orbit.dismissOnboarding'
 
@@ -65,8 +66,14 @@ export const OrbitUserProfileFooter = () => {
 		}
 	}
 
+	const nav = useAgentWindowNavigation()
+
 	const openSettings = (e: React.MouseEvent) => {
 		e.stopPropagation()
+		if (nav?.setCurrentView) {
+			nav.setCurrentView(nav.currentView === 'settings' ? 'chat' : 'settings')
+			return
+		}
 		void commandService.executeCommand('workbench.action.openVoidSettings')
 	}
 
