@@ -226,6 +226,9 @@ const SidebarChatLoaded = ({ isAgentWindow = false, currentThread, chatSurface, 
 	const initVal = initialDraftText ?? ''
 	const [isClaudeImportDismissed, setIsClaudeImportDismissed] = useState(() => {
 		try {
+			if (typeof localStorage !== 'undefined' && localStorage.getItem('orbit.dismissClaudeCodeImport') === 'true') {
+				return true
+			}
 			return storageService?.getBoolean('orbit.dismissClaudeCodeImport', StorageScope.APPLICATION, false) ?? false
 		} catch {
 			return false
@@ -1119,11 +1122,11 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 
 	const isLandingPage = previousMessages.length === 0
 
-	const executionTargetHeader = isSideChat ? null : (
+	const executionTargetHeader = inAgentWindow ? (
 		<ErrorBoundary>
 			<AgentWorkspaceHeader />
 		</ErrorBoundary>
-	)
+	) : null
 
 
 	const initiallySuggestedPromptsHTML = <div className='flex flex-col gap-2 w-full text-nowrap text-void-fg-0 select-none'>
@@ -1349,6 +1352,9 @@ className={`min-h-[40px] px-0.5 py-0.5 resize-none placeholder:text-void-fg-4`}
 						e.stopPropagation()
 						setIsClaudeImportDismissed(true)
 						try {
+							if (typeof localStorage !== 'undefined') {
+								localStorage.setItem('orbit.dismissClaudeCodeImport', 'true')
+							}
 							storageService?.store('orbit.dismissClaudeCodeImport', true, StorageScope.APPLICATION, StorageTarget.USER)
 						} catch {}
 					}}

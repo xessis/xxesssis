@@ -36,6 +36,9 @@ export const OrbitUserProfileFooter = () => {
 	const [updateChecking, setUpdateChecking] = useState(false)
 	const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(() => {
 		try {
+			if (typeof localStorage !== 'undefined' && localStorage.getItem(ONBOARDING_DISMISS_KEY) === 'true') {
+				return true
+			}
 			return storageService?.getBoolean(ONBOARDING_DISMISS_KEY, StorageScope.APPLICATION, false) ?? false
 		} catch {
 			return false
@@ -126,6 +129,9 @@ export const OrbitUserProfileFooter = () => {
 								e.stopPropagation();
 								setIsOnboardingDismissed(true);
 								try {
+									if (typeof localStorage !== 'undefined') {
+										localStorage.setItem(ONBOARDING_DISMISS_KEY, 'true');
+									}
 									storageService?.store(ONBOARDING_DISMISS_KEY, true, StorageScope.APPLICATION, StorageTarget.USER);
 								} catch {}
 							}}

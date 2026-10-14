@@ -135,6 +135,11 @@ export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 			<div className='flex flex-row justify-between items-center gap-2 shrink-0 pt-2 flex-nowrap'>
 				{/* Bottom-left: + Attachment Button & Model Selector Badge */}
 				<div className="flex items-center gap-2 text-nowrap min-w-0 overflow-hidden">
+					{/* Hidden container for imageButton inputs */}
+					<div className="hidden">
+						{imageButton}
+					</div>
+
 					{/* + Attachment button */}
 					<button
 						type="button"
@@ -143,6 +148,8 @@ export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 						aria-label="Add attachment"
 						onClick={(e) => {
 							e.stopPropagation();
+							const input = divRef?.current?.querySelector('input[type="file"]') as HTMLInputElement | null;
+							input?.click();
 						}}
 					>
 						<Plus size={13} className="stroke-[2.2]" />
