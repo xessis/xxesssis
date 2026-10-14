@@ -123,9 +123,6 @@ export const AssistantMessageComponent = React.memo(({ chatMessage, isCheckpoint
 						>
 							<GitFork size={13} strokeWidth={2} />
 						</button>
-						<span className="text-[11px] text-void-fg-4/60 ml-2 select-none">
-							Just now
-						</span>
 					</div>
 				)}
 			</div>
